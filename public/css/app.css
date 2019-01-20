@@ -16180,3 +16180,12 @@ html {
   padding: 3px;
 }
 
+.flash-message {
+  position: fixed;
+  top: 6px;
+  left: 50%;
+  z-index: 999;
+  margin-left: -200px;
+  width: 400px;
+}
+

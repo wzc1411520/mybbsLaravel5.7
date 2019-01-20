@@ -36391,6 +36391,7 @@ module.exports = function(module) {
  */
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
+$('.flash-message').slideDown("slow");
 $('.alert').fadeOut(3000); // window.Vue = require('vue');
 
 /**
