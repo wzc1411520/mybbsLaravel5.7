@@ -60,6 +60,21 @@
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label for="captcha" class="col-md-4 col-form-label text-md-right">验证码</label>
+
+                            <div class="col-md-6">
+                                <input id="captcha" class="form-control{{ $errors->has('captcha') ? ' is-invalid' : '' }}" name="captcha" required>
+
+                                <img class="thumbnail captcha mt-3 mb-2" src="{{ captcha_src('mini') }}" onclick="this.src='/captcha/mini?'+Math.random()" title="点击图片重新获取验证码">
+
+                                @if ($errors->has('captcha'))
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $errors->first('captcha') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
 
                         <div class="form-group row mb-0">
                             <div class="col-md-6 offset-md-4">
