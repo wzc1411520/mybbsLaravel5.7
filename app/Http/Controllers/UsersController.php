@@ -11,6 +11,8 @@ class UsersController extends Controller
 {
     public function show(User $user)
     {
+//        $users = $user->with('topics')->get();
+//        dd($user->topics()->get());
         return view('users.show', compact('user'));
     }
 

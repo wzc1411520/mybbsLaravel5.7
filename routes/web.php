@@ -42,3 +42,5 @@ Route::group(['middleware'=>'auth'],function ($route){
 });
 
 
+Route::resource('categories', 'CategoriesController', ['only' => ['show']]);
+Route::resource('topics', 'TopicsController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
