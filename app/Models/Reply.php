@@ -10,6 +10,7 @@ class Reply extends Model
     use Favoritable;
 
     protected $fillable = ['content'];
+    protected $appends = ['favoritesCount','isFavorited'];
 
     public function topic()
     {

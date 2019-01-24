@@ -40,7 +40,9 @@ Route::get('email/resend', 'Auth\VerificationController@resend')->name('verifica
 Route::group(['middleware'=>'auth'],function ($route){
 
     $route->post('/replies/{reply}/favorites','FavoritesController@storeReply');
+    $route->delete('/replies/{reply}/favorites','FavoritesController@deleteReply');
     $route->post('/topics/{topic}/favorites','FavoritesController@storeTopic');
+    $route->delete('/topics/{topic}/favorites','FavoritesController@deleteTopic');
 });
 
 Route::resource('users', 'UsersController', ['only' => ['show', 'update', 'edit']]);

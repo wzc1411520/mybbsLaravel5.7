@@ -12,7 +12,9 @@
 
                     <div class="media-heading mt-0 mb-1">
                         <a href="{{ $topic->link()}}" title="{{ $topic->title }}">
-                            {{ $topic->title }}
+                            {{--@if()--}}
+                            <span style="color: {{$topic->hasUpdatesFor(Auth::user())?'#c4c4c4':''}}">{{ $topic->title }}</span>
+
                         </a>
                         <a class="float-right" href="{{ $topic->link()}}">
                             <span class="badge badge-secondary badge-pill"> {{ $topic->reply_count }} </span>

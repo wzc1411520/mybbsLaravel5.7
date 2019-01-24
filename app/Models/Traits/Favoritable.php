@@ -21,7 +21,6 @@ trait Favoritable
     public function storeFavorite()
     {
         $attributes = ['user_id' => auth()->id()];
-        session()->flash('message', '已经赞过了!!!');
         if( ! $this->favorites()->where($attributes)->exists()){
             return $this->favorites()->create($attributes);
         }else{
@@ -32,5 +31,22 @@ trait Favoritable
     public function isFavorited()
     {
         return !! $this->favorites->where('user_id',auth()->id())->count();
+    }
+
+    public function getFavoritesCountAttribute()
+    {
+        return $this->favorites->count();
+    }
+
+    public function getIsFavoritedAttribute()
+    {
+        return $this->isFavorited();
+    }
+
+    public function unfavorite()
+    {
+        $attributes = ['user_id' => auth()->id()];
+
+        $this->favorites()->where($attributes)->delete();
     }
 }

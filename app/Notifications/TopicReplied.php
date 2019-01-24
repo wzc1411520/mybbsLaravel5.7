@@ -12,8 +12,7 @@ class TopicReplied extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $reply;
-
+    protected $reply;
     /**
      * Create a new notification instance.
      *
@@ -26,7 +25,7 @@ class TopicReplied extends Notification implements ShouldQueue
 
     /**
      * Get the notification's delivery channels.
-     *
+     * 开通频道
      * @param  mixed  $notifiable
      * @return array
      */
@@ -34,12 +33,13 @@ class TopicReplied extends Notification implements ShouldQueue
     {
         return ['database'];
     }
+
     public function toDatabase($notifiable)
     {
         $topic = $this->reply->topic;
-        $link =  $topic->link(['#reply' . $this->reply->id]);
+        $link  = $topic->link(['#reply'.$this->reply->id]);
 
-        // 存入数据库里的数据
+        //存入数据
         return [
             'reply_id' => $this->reply->id,
             'reply_content' => $this->reply->content,

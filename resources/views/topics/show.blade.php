@@ -46,7 +46,7 @@
             <form method="POST" action="/topics/{{ $topic->id }}/favorites">
               {{ csrf_field() }}
               <button style="border: 1px solid #c1c3c4;border-radius: 5px;padding: 5px;overflow: hidden;cursor: pointer;color: #6c757d">
-                <i class="{{ $topic->isFavorited() ? 'fas' : 'far' }} fa-thumbs-up"></i> <span class="state">{{ $topic->isFavorited() ? '已赞' : '点赞' }}</span><span class="badge"> {{ $topic->favorites()->count() }}</span>
+                <i class="{{ $topic->isFavorited ? 'fas' : 'far' }} fa-thumbs-up"></i> <span class="state">{{ $topic->isFavorited ? '已赞' : '点赞' }}</span><span class="badge"> {{ $topic->favoritesCount }}</span>
               </button>
             </form>
 
@@ -81,7 +81,7 @@
       <div class="card topic-reply mt-4">
         <div class="card-body">
           @include('topics._reply_box', ['topic' => $topic])
-          @include('topics._reply_list', ['replies' => $topic->replies()->recent()->with('user')->get()])
+          @include('topics._reply_list', ['replies' => $topic->replies()->recent()->with('user')->paginate(10)])
         </div>
       </div>
     </div>

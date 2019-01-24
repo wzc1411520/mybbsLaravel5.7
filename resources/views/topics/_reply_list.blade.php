@@ -33,7 +33,7 @@
                         <form method="POST" action="/replies/{{ $reply->id }}/favorites">
                             {{ csrf_field() }}
                             <button type="submit" class="btn btn-default btn-xs pull-left text-secondary">
-                                <i class="{{ $reply->isFavorited() ? 'fas' : 'far' }} fa-thumbs-up"></i>
+                                <i class="{{ $reply->isFavorited ? 'fas' : 'far' }} fa-thumbs-up"></i><span class="badge"> {{ $reply->favoritesCount }}</span>
                              </button>
                         </form>
                          @endauth
@@ -51,3 +51,7 @@
 
     @endforeach
 </ul>
+{{-- 分页 --}}
+<div class="mt-4 pt-1">
+    {!! $replies->appends(Request::except('page'))->render() !!}
+</div>
