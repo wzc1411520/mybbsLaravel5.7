@@ -4,10 +4,11 @@ namespace App\Models;
 
 use App\Models\Traits\Favoritable;
 use App\Models\Traits\RecordsActivity;
+use App\Models\Traits\TopicViewNum;
 
 class Topic extends Model
 {
-    use Favoritable;
+    use Favoritable,TopicViewNum;
     protected $fillable = ['title', 'body', 'category_id', 'excerpt', 'slug'];
     protected $appends = ['favoritesCount','isFavorited'];
 

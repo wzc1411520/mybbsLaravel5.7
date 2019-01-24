@@ -13,7 +13,7 @@
                     <div class="media-heading mt-0 mb-1">
                         <a href="{{ $topic->link()}}" title="{{ $topic->title }}">
                             {{--@if()--}}
-                            <span style="color: {{$topic->hasUpdatesFor(Auth::user())?'#c4c4c4':''}}">{{ $topic->title }}</span>
+                            <span style="color: {{(auth()->check() &&$topic->hasUpdatesFor(Auth::user()))?'#c4c4c4':''}}">{{ $topic->title }}</span>
 
                         </a>
                         <a class="float-right" href="{{ $topic->link()}}">

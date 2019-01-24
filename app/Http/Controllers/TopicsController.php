@@ -25,13 +25,16 @@ class TopicsController extends Controller
 		return view('topics.index', compact('topics'));
 	}
 
-    public function show(Request $request,Topic $topic)
+    public function show(Request $request,Topic $topic,User $user)
     {
          //URL 矫正
         if ( ! empty($topic->slug) && $topic->slug != $request->slug) {
             return redirect($topic->link(), 301);
         }
-        \Auth::user()->read($topic);
+        //用戶看過那些話題
+        $user->read($topic);
+        //记录话题的浏览量
+        $topic->recordVisit();
         return view('topics.show', compact('topic'));
     }
 

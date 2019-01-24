@@ -39,7 +39,7 @@
             {{ $topic->reply_count }}
             .
             <i class="far fa-eye"></i>
-            {{ $topic->view_count }}
+            {{ $topic->visits()}}
             .<i class="far fa-thumbs-up"></i>
             .<i class="fas fa-thumbs-up"></i>
             @auth
