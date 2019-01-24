@@ -16,19 +16,28 @@
                     <span class="meta text-secondary" title="{{ $reply->created_at }}">{{ $reply->created_at->diffForHumans() }}</span>
 
                     {{-- 回复删除按钮 --}}
-                    @can('destroy', $reply)
+
                     <span class="meta float-right">
+                         @can('destroy', $reply)
                         <form action="{{ route('replies.destroy', $reply->id) }}"
                               onsubmit="return confirm('确定要删除此评论？');"
                               method="post">
-                          {{ csrf_field() }}
+                            {{ csrf_field() }}
                             {{ method_field('DELETE') }}
                             <button type="submit" class="btn btn-default btn-xs pull-left text-secondary">
-                            <i class="far fa-trash-alt"></i>
-                          </button>
+                                <i class="far fa-trash-alt"></i>
+                            </button>
                         </form>
-                      </span>
-                    @endcan
+                        @endcan
+                        @auth
+                        <form method="POST" action="/replies/{{ $reply->id }}/favorites">
+                            {{ csrf_field() }}
+                            <button type="submit" class="btn btn-default btn-xs pull-left text-secondary">
+                                <i class="{{ $reply->isFavorited() ? 'fas' : 'far' }} fa-thumbs-up"></i>
+                             </button>
+                        </form>
+                         @endauth
+                    </span>
                 </div>
                 <div class="reply-content text-secondary">
                     {!! $reply->content !!}

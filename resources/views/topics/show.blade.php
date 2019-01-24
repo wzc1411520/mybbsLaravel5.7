@@ -37,6 +37,20 @@
             ⋅
             <i class="far fa-comment"></i>
             {{ $topic->reply_count }}
+            .
+            <i class="far fa-eye"></i>
+            {{ $topic->view_count }}
+            .<i class="far fa-thumbs-up"></i>
+            .<i class="fas fa-thumbs-up"></i>
+            @auth
+            <form method="POST" action="/topics/{{ $topic->id }}/favorites">
+              {{ csrf_field() }}
+              <button style="border: 1px solid #c1c3c4;border-radius: 5px;padding: 5px;overflow: hidden;cursor: pointer;color: #6c757d">
+                <i class="{{ $topic->isFavorited() ? 'fas' : 'far' }} fa-thumbs-up"></i> <span class="state">{{ $topic->isFavorited() ? '已赞' : '点赞' }}</span><span class="badge"> {{ $topic->favorites()->count() }}</span>
+              </button>
+            </form>
+
+            @endauth
           </div>
 
           <div class="topic-body mt-4 mb-4">
@@ -60,18 +74,16 @@
               </form>
             </div>
           @endcan
-
         </div>
       </div>
 
       {{-- 用户回复列表 --}}
       <div class="card topic-reply mt-4">
         <div class="card-body">
-          @includeWhen(Auth::check(), 'topics._reply_box', ['topic' => $topic])
-          @include('topics._reply_list', ['replies' => $topic->replies()->with('user')->get()])
+          @include('topics._reply_box', ['topic' => $topic])
+          @include('topics._reply_list', ['replies' => $topic->replies()->recent()->with('user')->get()])
         </div>
       </div>
-
     </div>
   </div>
 @stop

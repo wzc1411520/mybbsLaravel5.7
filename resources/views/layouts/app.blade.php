@@ -23,7 +23,7 @@
 
     @include('layouts._header')
 
-    <div class="container">
+    <div class="container" style="margin-top: 80px;margin-bottom: 80px;">
 
         @include('shared._messages')
 
@@ -33,7 +33,9 @@
 
     @include('layouts._footer')
 </div>
-
+@if (app()->isLocal())
+    @include('sudosu::user-selector')
+@endif
 <!-- Scripts -->
 <script src="{{ mix('js/app.js') }}"></script>
 @yield('scripts')

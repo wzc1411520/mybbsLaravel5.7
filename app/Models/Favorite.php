@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
-use App\Models\Traits\Favoritable;
 use App\Models\Traits\RecordsActivity;
+use Illuminate\Database\Eloquent\Model;
 
-class Reply extends Model
+class Favorite extends Model
 {
-    use Favoritable;
-
-    protected $fillable = ['content'];
+//    use RecordsActivity;
+    protected $guarded = [];
+    public function favorited()
+    {
+        return $this->morphTo();
+    }
 
     public function topic()
     {

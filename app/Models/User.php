@@ -69,4 +69,9 @@ class User extends Authenticatable  implements MustVerifyEmailContract
     {
         return $this->id == $model->user_id;
     }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
 }

@@ -10,17 +10,17 @@ use Illuminate\Http\Request;
 
 class CategoriesController extends Controller
 {
-    public function show(Topic $topic,Category $category,User $user,Request $request,Link $link)
+    public function show(Topic $topic,Category $category ,Request $request,Link $link)
     {
         // 读取分类 ID 关联的话题，并按每 20 条分页
         $topics = $topic->withOrder($request->order)
             ->where('category_id', $category->id)
             ->paginate();
         // 活跃用户列表
-        $active_users = $user->getActiveUsers();
-        $links = $link->getAllCached();
+//        $active_users = $user->getActiveUsers();
+
 
         // 传参变量话题和分类到模板中
-        return view('topics.index', compact('topics', 'category','active_users','links'));
+        return view('topics.index', compact('topics', 'category'));
     }
 }

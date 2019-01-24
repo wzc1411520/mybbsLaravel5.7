@@ -9,8 +9,13 @@ use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth',['only'=>['edit','update']]);
+    }
     public function show(User $user)
     {
+//        dd($this->getActivity($user));
 //        $users = $user->with('topics')->get();
 //        dd($user->topics()->get());
         return view('users.show', compact('user'));
@@ -36,5 +41,10 @@ class UsersController extends Controller
         }
         $user->update($data);
         return redirect()->route('users.show', $user->id)->with('success', '个人资料更新成功！');
+    }
+
+    protected function getActivity(User $user)
+    {
+        return $user->favorites()->latest()->with('favorited')->get()->toArray();
     }
 }

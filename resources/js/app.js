@@ -7,7 +7,7 @@
 
 require('./bootstrap');
 $('.flash-message').slideDown("slow");
-$('.alert').fadeOut(3000);
+$('.alert').slideToggle(3000);
 // window.Vue = require('vue');
 
 /**

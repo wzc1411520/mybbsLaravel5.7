@@ -22,7 +22,7 @@ class RepliesController extends Controller
         $reply->user_id = \Auth::id();
         $reply->topic_id = $request->topic_id;
         $reply->save();
-		return redirect()->route('replies.show', $reply->id)->with('success', 'Created successfully.');
+		return redirect()->to($reply->topic->link())->with('success', 'Created successfully.');
 	}
 
 	public function destroy(Reply $reply)
