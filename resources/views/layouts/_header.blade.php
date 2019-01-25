@@ -41,7 +41,10 @@
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="{{route('users.show',Auth::id())}}">个人中心</a>
                             <a class="dropdown-item" href="{{route('users.edit',Auth::id())}}">编辑资料</a>
-                            <a class="dropdown-item" href="{{url('/telescope')}}">调试后台</a>
+                            @can('manage_contents')
+                            <a class="dropdown-item" target="_blank" href="{{url('/telescope')}}">调试后台</a>
+                            <a class="dropdown-item" target="_blank" href="{{url('/admin')}}" >后台管理</a>
+                            @endcan
                             {{--<a class="dropdown-item" href="{{route('password.reset',csrf_token())}}">修改密码</a>--}}
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" id="logout" href="#">

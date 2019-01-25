@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col-lg-3 col-md-3 hidden-sm hidden-xs user-info">
             <div class="card ">
-                <img class="card-img-top" src="{{Auth::user()->avatar?:'https://iocaffcdn.phphub.org/uploads/images/201709/20/1/PtDKbASVcz.png?imageView2/1/w/60/h/60'}}" alt="{{ $user->name }}">
+                <img class="card-img-top" src="{{Auth::user()->avatar??'https://iocaffcdn.phphub.org/uploads/images/201709/20/1/PtDKbASVcz.png?imageView2/1/w/60/h/60'}}" alt="{{ $user->name }}">
                 <div class="card-body">
                     <h5><strong>个人简介</strong></h5>
                     <p>{{ $user->introduction }} </p>
@@ -47,10 +47,17 @@
                                 Ta 的点赞
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link bg-transparent {{ active_class(if_query('tab', 'follow')) }}" href="{{ route('users.show', [$user->id, 'tab' => 'follow']) }}">
+                                Ta 的关注
+                            </a>
+                        </li>
                     </ul>
                     @if (if_query('tab', 'replies'))
-                        @include('users._replies', ['replies' => $user->replies()->with('topic')->recent()->paginate(10)])
+                        @include('users._replies', ['replies' => $user->replies()->with('topic')->recent()->paginate(5)])
                     @elseif(if_query('tab', 'favorite'))
+                        @include('users._favorites', ['favorites' => $user->favorites()->latest()->with('favorited')->paginate(5)])
+                    @elseif(if_query('tab', 'follow'))
                         @include('users._favorites', ['favorites' => $user->favorites()->latest()->with('favorited')->paginate(5)])
                     @else
                         @include('users._topics', ['topics' => $user->topics()->recent()->paginate(10)])

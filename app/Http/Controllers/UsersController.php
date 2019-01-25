@@ -9,10 +9,6 @@ use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth',['only'=>['edit','update']]);
-    }
     public function show(User $user)
     {
 //        dd($this->getActivity($user));
