@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\User;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\HasResourceActions;
 use Encore\Admin\Form;
@@ -9,7 +10,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 
-class ExampleController extends Controller
+class UsersController extends Controller
 {
     use HasResourceActions;
 
@@ -30,7 +31,7 @@ class ExampleController extends Controller
     /**
      * Show interface.
      *
-     * @param mixed   $id
+     * @param mixed $id
      * @param Content $content
      * @return Content
      */
@@ -45,7 +46,7 @@ class ExampleController extends Controller
     /**
      * Edit interface.
      *
-     * @param mixed   $id
+     * @param mixed $id
      * @param Content $content
      * @return Content
      */
@@ -78,11 +79,19 @@ class ExampleController extends Controller
      */
     protected function grid()
     {
-        $grid = new Grid(new YourModel);
+        $grid = new Grid(new User);
 
-        $grid->id('ID')->sortable();
+        $grid->id('Id');
+        $grid->name('Name');
+        $grid->email('Email');
+        $grid->email_verified_at('Email verified at');
+        $grid->password('Password');
+        $grid->remember_token('Remember token');
         $grid->created_at('Created at');
         $grid->updated_at('Updated at');
+        $grid->avatar('Avatar');
+        $grid->introduction('Introduction');
+        $grid->notification_count('Notification count');
 
         return $grid;
     }
@@ -90,16 +99,24 @@ class ExampleController extends Controller
     /**
      * Make a show builder.
      *
-     * @param mixed   $id
+     * @param mixed $id
      * @return Show
      */
     protected function detail($id)
     {
-        $show = new Show(YourModel::findOrFail($id));
+        $show = new Show(User::findOrFail($id));
 
-        $show->id('ID');
+        $show->id('Id');
+        $show->name('Name');
+        $show->email('Email');
+        $show->email_verified_at('Email verified at');
+        $show->password('Password');
+        $show->remember_token('Remember token');
         $show->created_at('Created at');
         $show->updated_at('Updated at');
+        $show->avatar('Avatar');
+        $show->introduction('Introduction');
+        $show->notification_count('Notification count');
 
         return $show;
     }
@@ -111,11 +128,16 @@ class ExampleController extends Controller
      */
     protected function form()
     {
-        $form = new Form(new YourModel);
+        $form = new Form(new User);
 
-        $form->display('id', 'ID');
-        $form->display('created_at', 'Created At');
-        $form->display('updated_at', 'Updated At');
+        $form->text('name', 'Name');
+        $form->email('email', 'Email');
+        $form->datetime('email_verified_at', 'Email verified at')->default(date('Y-m-d H:i:s'));
+        $form->password('password', 'Password');
+        $form->text('remember_token', 'Remember token');
+        $form->image('avatar', 'Avatar');
+        $form->text('introduction', 'Introduction');
+        $form->number('notification_count', 'Notification count');
 
         return $form;
     }

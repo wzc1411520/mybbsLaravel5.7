@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 use Illuminate\Routing\Router;
 
@@ -11,5 +11,10 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/', 'HomeController@index');
+    $router->resource('user', 'UsersController');
+    $router->resource('topic', 'TopicsController');
+    $router->resource('category', 'CategoriesController');
+    $router->resource('reply', 'RepliesController');
+    $router->resource('links', 'LinksController');
 
 });
