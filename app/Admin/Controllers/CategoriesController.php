@@ -9,11 +9,18 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
+use Illuminate\Http\Request;
 
 class CategoriesController extends Controller
 {
     use HasResourceActions;
 
+    public function getSelect(Request $request)
+    {
+        $q = $request->get('q');
+
+        return Category::where('id', $q)->paginate(null, ['id', 'name as text']);
+    }
     /**
      * Index interface.
      *
@@ -122,7 +129,6 @@ class CategoriesController extends Controller
 
         $form->text('name', 'Name');
         $form->textarea('description', 'Description');
-        $form->number('post_count', 'Post count');
 
         return $form;
     }

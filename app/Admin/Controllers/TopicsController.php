@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\Category;
 use App\Models\Topic;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\HasResourceActions;
@@ -81,16 +82,37 @@ class TopicsController extends Controller
     {
         $grid = new Grid(new Topic);
 
+        $grid->filter(function($filter){
+
+            // 去掉默认的id过滤器
+            $filter->disableIdFilter();
+            $filter->column(1/3,function ($filter){
+                $filter->like('title','标题');
+            });
+            // 在这里添加字段过滤器
+            $filter->column(1/3,function ($filter){
+//                $filter->equal('category_id','分类')->select('api/category');
+                $filter->equal('category_id','分类')->select(Category::pluck('name as text','id'));
+//                $filter->like('category','作者');
+            });
+            // 在这里添加字段过滤器
+            $filter->column(1/3,function ($filter){
+                $filter->like('body','内容');
+            });
+        });
+
+
         $grid->id('Id');
         $grid->title('Title');
-        $grid->body('Body');
-        $grid->user_id('User id');
-        $grid->category_id('Category id');
-        $grid->reply_count('Reply count');
-        $grid->view_count('View count');
-        $grid->last_reply_user_id('Last reply user id');
-        $grid->order('Order');
         $grid->excerpt('Excerpt');
+        $grid->user()->display(function ($user){
+            return $user['name'];
+        });
+        $grid->category('分类')->display(function($category){
+            return $category['name'];
+        });
+        $grid->reply_count('Reply count')->sortable();
+        $grid->view_count('View count')->sortable();
         $grid->slug('Slug');
         $grid->created_at('Created at');
         $grid->updated_at('Updated at');
@@ -108,15 +130,22 @@ class TopicsController extends Controller
     {
         $show = new Show(Topic::findOrFail($id));
 
-        $show->id('Id');
+//        $show->id('Id');
         $show->title('Title');
         $show->body('Body');
-        $show->user_id('User id');
-        $show->category_id('Category id');
+//        $show->user('user',function ($user){
+//            $user->setResource('/admin/users');
+//            $user->name();
+//        });
+        $show->user('user')->as(function ($user){
+            return $user->name;
+        });
+        $show->category('category')->as(function ($category){
+            return $category->name;
+        });
+//        $show->category_id('category.name');
         $show->reply_count('Reply count');
         $show->view_count('View count');
-        $show->last_reply_user_id('Last reply user id');
-        $show->order('Order');
         $show->excerpt('Excerpt');
         $show->slug('Slug');
         $show->created_at('Created at');
@@ -135,15 +164,9 @@ class TopicsController extends Controller
         $form = new Form(new Topic);
 
         $form->text('title', 'Title');
-        $form->textarea('body', 'Body');
-        $form->number('user_id', 'User id');
-        $form->number('category_id', 'Category id');
-        $form->number('reply_count', 'Reply count');
-        $form->number('view_count', 'View count');
-        $form->number('last_reply_user_id', 'Last reply user id');
-        $form->number('order', 'Order');
-        $form->textarea('excerpt', 'Excerpt');
-        $form->text('slug', 'Slug');
+        $form->select('category_id','Category')->options(Category::getSelectOptions());
+//        $form->textarea('body', 'Body');
+        $form->simplemde('body');
 
         return $form;
     }

@@ -80,16 +80,24 @@ class UsersController extends Controller
     protected function grid()
     {
         $grid = new Grid(new User);
+        $grid->filter(function($filter){
 
+            // 去掉默认的id过滤器
+            $filter->disableIdFilter();
+            $filter->column(1/3,function ($filter){
+                $filter->like('name','姓名');
+            });
+            // 在这里添加字段过滤器
+            $filter->column(1/3,function ($filter){
+                $filter->like('email','邮箱账号');
+            });
+        });
         $grid->id('Id');
+        $grid->avatar('头像')->display(function ($avatar){
+            return  '<img src="'.$avatar.'"width="100">';
+        });
         $grid->name('Name');
         $grid->email('Email');
-        $grid->email_verified_at('Email verified at');
-        $grid->password('Password');
-        $grid->remember_token('Remember token');
-        $grid->created_at('Created at');
-        $grid->updated_at('Updated at');
-        $grid->avatar('Avatar');
         $grid->introduction('Introduction');
         $grid->notification_count('Notification count');
 
@@ -106,15 +114,9 @@ class UsersController extends Controller
     {
         $show = new Show(User::findOrFail($id));
 
-        $show->id('Id');
+        $show->avatar('Avatar')->image();
         $show->name('Name');
         $show->email('Email');
-        $show->email_verified_at('Email verified at');
-        $show->password('Password');
-        $show->remember_token('Remember token');
-        $show->created_at('Created at');
-        $show->updated_at('Updated at');
-        $show->avatar('Avatar');
         $show->introduction('Introduction');
         $show->notification_count('Notification count');
 
@@ -131,13 +133,9 @@ class UsersController extends Controller
         $form = new Form(new User);
 
         $form->text('name', 'Name');
-        $form->email('email', 'Email');
-        $form->datetime('email_verified_at', 'Email verified at')->default(date('Y-m-d H:i:s'));
-        $form->password('password', 'Password');
-        $form->text('remember_token', 'Remember token');
         $form->image('avatar', 'Avatar');
+        $form->email('email', 'Email');
         $form->text('introduction', 'Introduction');
-        $form->number('notification_count', 'Notification count');
 
         return $form;
     }

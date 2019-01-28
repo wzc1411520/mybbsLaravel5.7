@@ -21,6 +21,7 @@
         "laravel-admin-ext/media-manager": "^1.0",
         "laravel-admin-ext/redis-manager": "^1.0",
         "laravel-admin-ext/scheduling": "^1.0",
+        "laravel-admin-ext/simplemde": "^1.0",
         "laravel/framework": "5.7.*",
         "laravel/tinker": "^1.0",
         "mews/captcha": "~2.0",

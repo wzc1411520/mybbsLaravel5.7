@@ -100,7 +100,6 @@ class LinksController extends Controller
     {
         $show = new Show(Link::findOrFail($id));
 
-        $show->id('Id');
         $show->title('Title');
         $show->link('Link');
         $show->created_at('Created at');

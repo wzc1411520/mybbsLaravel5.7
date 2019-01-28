@@ -80,11 +80,17 @@ class RepliesController extends Controller
     protected function grid()
     {
         $grid = new Grid(new Reply);
+        $grid->disableCreateButton();
+        $grid->disableExport();
 
         $grid->id('Id');
-        $grid->topic_id('Topic id');
-        $grid->user_id('User id');
-        $grid->content('Content');
+        $grid->topic('Topic')->display(function ($topic){
+            return $topic['title'];
+        });
+        $grid->user('User')->display(function($user){
+            return $user['name'];
+        });
+        $grid->content('Content')->limit(30);
         $grid->created_at('Created at');
         $grid->updated_at('Updated at');
 
@@ -100,10 +106,12 @@ class RepliesController extends Controller
     protected function detail($id)
     {
         $show = new Show(Reply::findOrFail($id));
-
-        $show->id('Id');
-        $show->topic_id('Topic id');
-        $show->user_id('User id');
+        $show->topic('Topic')->as(function ($topic){
+            return  $topic->title;
+        });
+        $show->user('User')->as(function ($user){
+            return $user->name;
+        });
         $show->content('Content');
         $show->created_at('Created at');
         $show->updated_at('Updated at');
@@ -119,9 +127,6 @@ class RepliesController extends Controller
     protected function form()
     {
         $form = new Form(new Reply);
-
-        $form->number('topic_id', 'Topic id');
-        $form->number('user_id', 'User id');
         $form->textarea('content', 'Content');
 
         return $form;

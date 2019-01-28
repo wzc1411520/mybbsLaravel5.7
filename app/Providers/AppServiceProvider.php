@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
 
         $user = new User();
         $link = new Link();
-        $category = \Cache::rememberForever('channels',function (){
+        $category = \Cache::rememberForever('category',function (){
             return Category::all();
         });
         \View::composer('*',function ($view)use($user,$link,$category){

@@ -16,5 +16,6 @@ Route::group([
     $router->resource('category', 'CategoriesController');
     $router->resource('reply', 'RepliesController');
     $router->resource('links', 'LinksController');
+    $router->get('api/category', 'CategoriesController@getSelect');
 
 });
