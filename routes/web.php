@@ -45,6 +45,8 @@ Route::group(['middleware'=>'auth'],function ($route){
     $route->delete('/topics/{topic}/favorites','FavoritesController@deleteTopic');
 });
 
+//web端第三方登錄
+Route::get('socials/{social_type}/authorizations', 'AuthorizationsController@login')->name('weixin');
 
 Route::resource('categories', 'CategoriesController', ['only' => ['show']]);
 Route::resource('topics', 'TopicsController', ['only' => ['index', 'create', 'store', 'update', 'edit', 'destroy']]);

@@ -8,8 +8,9 @@ use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Spatie\Permission\Traits\HasRoles;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable  implements MustVerifyEmailContract
+class User extends Authenticatable  implements MustVerifyEmailContract,JWTSubject
 {
     use HasRoles;
     use Notifiable {
@@ -40,7 +41,7 @@ class User extends Authenticatable  implements MustVerifyEmailContract
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','introduction','avatar'
+        'name', 'email', 'password','introduction','avatar','weixin_openid', 'weixin_unionid'
     ];
 
     /**
@@ -84,5 +85,17 @@ class User extends Authenticatable  implements MustVerifyEmailContract
     public function visitedThreadCacheKey($topic)
     {
         return $key = sprintf("users.%s.visits.%s",$this->id,$topic->id);
+    }
+
+    // Rest omitted for brevity
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }

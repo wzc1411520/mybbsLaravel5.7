@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\CaptchaRequest;
 use Gregwar\Captcha\CaptchaBuilder;
 use Illuminate\Http\Request;
+use SocialiteProviders\Weixin\Provider;
+use SocialiteProviders\Weixin\WeixinExtendSocialite;
 
 class CaptchasController extends Controller
 {

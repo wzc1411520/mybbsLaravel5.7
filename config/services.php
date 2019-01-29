@@ -39,5 +39,15 @@ return [
             'tolerance' => env('STRIPE_WEBHOOK_TOLERANCE', 300),
         ],
     ],
+    'weixin' => [
+        'client_id' => env('WEIXIN_KEY'),
+        'client_secret' => env('WEIXIN_SECRET'),
+        'redirect' => env('WEIXIN_REDIRECT_URI'),
+    ],
+    'qq' => [
+        'client_id' => env('QQ_KEY'),
+        'client_secret' => env('QQ_SECRET'),
+        'redirect' => env('QQ_REDIRECT_URI')
+    ],
 
 ];
