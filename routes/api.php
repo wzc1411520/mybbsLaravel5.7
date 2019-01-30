@@ -66,10 +66,13 @@ $api->version('v1', [
 
         //访问
         $api->group([
+            'middleware' => 'api.auth',
             'limit' => config('api.rate_limits.access.limit'),
             'expires' => config('api.rate_limits.access.expires'),
         ],function($api){
-
+            // 当前登录用户信息
+            $api->get('user', 'UsersController@me')
+                ->name('api.user.show');
         });
     });
 

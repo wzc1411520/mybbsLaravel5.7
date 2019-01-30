@@ -9,6 +9,7 @@ use App\Models\Topic;
 use App\Models\User;
 use Encore\Admin\Config\Config;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Http\Resources\Json\Resource;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -42,6 +43,10 @@ class AppServiceProvider extends ServiceProvider
             $view->with('links',$link->getAllCached());
             $view->with('categories',$category);
         });
+
+        //統一数据格式 去掉外层的data
+
+        Resource::withoutWrapping();
     }
 
     /**
