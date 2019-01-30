@@ -27,11 +27,6 @@ class UserResource extends JsonResource
             "avatar"=> config('app.url').$this->avatar,
             "introduction"=> $this->introduction,
             "notification_count"=>$this->notification_count,
-            'meta'=>[
-                'access_token' => \Auth::guard('api')->fromUser(\Auth::guard('api')->user()),
-                'token_type' => 'Bearer',
-                'expires_in' => \Auth::guard('api')->factory()->getTTL() * 60
-            ]
         ];
     }
 }

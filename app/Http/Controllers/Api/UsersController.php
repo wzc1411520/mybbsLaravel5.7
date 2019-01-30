@@ -12,7 +12,12 @@ class UsersController extends Controller
 {
     public function me()
     {
-        return new UserResource($this->user());
+        $user = $this->user();
+        return (new UserResource($this->user()))->additional(['meta' => [
+            'access_token' => \Auth::guard('api')->fromUser($user),
+            'token_type' => 'Bearer',
+            'expires_in' => \Auth::guard('api')->factory()->getTTL() * 60
+        ]]);
     }
     
     //编辑个人资料
