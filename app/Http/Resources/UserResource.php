@@ -27,6 +27,7 @@ class UserResource extends JsonResource
             "avatar"=> config('app.url').$this->avatar,
             "introduction"=> $this->introduction,
             "notification_count"=>$this->notification_count,
+            'permission' => $request->include == 'permission'?PermissionResource::collection($this->getAllPermissions()):'',
         ];
     }
 }
