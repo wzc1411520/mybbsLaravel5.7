@@ -66,20 +66,30 @@ $api->version('v1', [
 
         //访问
         $api->group([
-            'middleware' => 'api.auth',
             'limit' => config('api.rate_limits.access.limit'),
             'expires' => config('api.rate_limits.access.expires'),
         ],function($api){
-            // 当前登录用户信息
-            $api->get('user', 'UsersController@me')
-                ->name('api.user.show');
-            // 编辑登录用户信息
-            $api->patch('user', 'UsersController@update')
-                ->name('api.user.update');
-            // 图片资源
-            $api->post('images', 'ImagesController@store')
-                ->name('api.images.store');
+            //登录访问的数据
+            $api->group(['middleware' => 'api.auth'],function ($api){
+                // 当前登录用户信息
+                $api->get('user', 'UsersController@me')
+                    ->name('api.user.show');
+                // 编辑登录用户信息
+                $api->patch('user', 'UsersController@update')
+                    ->name('api.user.update');
+                // 图片资源
+                $api->post('images', 'ImagesController@store')
+                    ->name('api.images.store');
+            });
+
+            //访客访问的数据
+            // 游客可以访问的接口
+            $api->get('categories', 'CategoriesController@index')
+                ->name('api.categories.index');
+
+
         });
+
     });
 
 
