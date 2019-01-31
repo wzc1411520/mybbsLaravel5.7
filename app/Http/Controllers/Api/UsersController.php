@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\UserRequest;
+use App\Http\Resources\ActiveUserResource;
 use App\Http\Resources\UserResource;
 use App\Models\Image;
 use App\Models\User;
@@ -10,6 +11,13 @@ use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
+
+    public function activedIndex(User $user)
+    {
+        $activedUser = $user->getActiveUsers();
+        return UserResource::collection($activedUser);
+    }
+
     public function me()
     {
         $user = $this->user();
@@ -25,7 +33,7 @@ class UsersController extends Controller
     {
         $user = $this->user();
 
-        $attributes = $request->only(['name', 'email', 'introduction']);
+        $attributes = $request->only(['name', 'email', 'introduction','registration_id']);
 
         if ($request->avatar_image_id) {
             $image = Image::find($request->avatar_image_id);

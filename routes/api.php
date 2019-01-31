@@ -26,7 +26,7 @@ $api->version('v1', [
 ],function($api) {
 
     $api->group([
-        'middleware' => ['api.throttle','bindings'],
+        'middleware' => ['api.throttle','bindings','change-language'],
     ], function($api) {
         //登录/注册
         $api->group([
@@ -82,6 +82,28 @@ $api->version('v1', [
                 // 删除回复
                 $api->delete('topics/{topic}/replies/{reply}', 'RepliesController@destroy')
                     ->name('api.topics.replies.destroy');
+                // 通知列表
+                $api->get('user/notifications', 'NotificationsController@index')
+                    ->name('api.user.notifications.index');
+                // 通知统计
+                $api->get('user/notifications/stats', 'NotificationsController@stats')
+                    ->name('api.user.notifications.stats');
+                // 标记消息通知为已读
+                $api->patch('user/read/notifications', 'NotificationsController@read')
+                    ->name('api.user.notifications.read');
+                // 当前登录用户权限
+                $api->get('user/permissions', 'PermissionsController@index')
+                    ->name('api.user.permissions.index');
+
+                //添加点赞
+                //取消点赞
+
+                //关注
+                //取消关注
+
+                //我的点赞
+
+                //我的关注
 
 
             });
@@ -102,19 +124,16 @@ $api->version('v1', [
             // 某个用户的回复列表
             $api->get('users/{user}/replies', 'RepliesController@userIndex')
                 ->name('api.users.replies.index');
-            // 通知列表
-            $api->get('user/notifications', 'NotificationsController@index')
-                ->name('api.user.notifications.index');
-            // 通知统计
-            $api->get('user/notifications/stats', 'NotificationsController@stats')
-                ->name('api.user.notifications.stats');
 
-            // 标记消息通知为已读
-            $api->patch('user/read/notifications', 'NotificationsController@read')
-                ->name('api.user.notifications.read');
-            // 当前登录用户权限
-            $api->get('user/permissions', 'PermissionsController@index')
-                ->name('api.user.permissions.index');
+            // 资源推荐
+            $api->get('links', 'LinksController@index')
+                ->name('api.links.index');
+
+            // 活跃用户
+            $api->get('actived/users', 'UsersController@activedIndex')
+                ->name('api.actived.users.index');
+
+
 
 
         });

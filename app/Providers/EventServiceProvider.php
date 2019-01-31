@@ -33,6 +33,9 @@ class EventServiceProvider extends ServiceProvider
             'SocialiteProviders\QQ\QqExtendSocialite@handle',
 
         ],
+        'eloquent.created: Illuminate\Notifications\DatabaseNotification' => [
+            'App\Listeners\PushNotification',
+        ],
     ];
 
     /**

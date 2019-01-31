@@ -46,7 +46,8 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:60,1',
             'bindings',
-            \Illuminate\Session\Middleware\StartSession::class,
+            // 接口语言设置
+            'change-language ' => \App\Http\Middleware\ChangeLocale::class,
         ],
     ];
 

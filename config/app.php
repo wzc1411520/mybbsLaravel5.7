@@ -178,6 +178,8 @@ return [
 
         App\Providers\EasySmsServiceProvider::class,
         \SocialiteProviders\Manager\ServiceProvider::class,
+        //极光推送
+        App\Providers\JpushServiceProvider::class,
 
 
 
