@@ -26,7 +26,7 @@ $api->version('v1', [
 ],function($api) {
 
     $api->group([
-        'middleware' => ['api.throttle','bindings','change-language'],
+        'middleware' => ['api.throttle','bindings'],
     ], function($api) {
         //登录/注册
         $api->group([
@@ -52,7 +52,9 @@ $api->version('v1', [
             // 删除token
             $api->delete('authorizations/current', 'AuthorizationsController@destroy')->name('api.authorizations.destroy');
 
-
+            //微信小程序
+            //登录
+            $api->post('wechat/authorizations','AuthorizationsController@weChatStore')->name('api.wechat.authorizations.store');
         });
 
         //访问

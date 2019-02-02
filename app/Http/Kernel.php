@@ -47,7 +47,7 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
             // 接口语言设置
-            'change-language ' => \App\Http\Middleware\ChangeLocale::class,
+            //'change-language ' => \App\Http\Middleware\ChangeLocale::class,
         ],
     ];
 

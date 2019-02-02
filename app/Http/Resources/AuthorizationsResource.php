@@ -14,7 +14,9 @@ class AuthorizationsResource extends JsonResource
      */
     public function toArray($request)
     {
+
         return [
+            'userInfo'    => new UserResource($this['userInfo']??''),
             'access_token' => $this['access_token'],
             'token_type' => 'Bearer',
             'expires_in' => \Auth::guard('api')->factory()->getTTL() * 60
