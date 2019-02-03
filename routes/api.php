@@ -55,6 +55,10 @@ $api->version('v1', [
             //微信小程序
             //登录
             $api->post('wechat/authorizations','AuthorizationsController@weChatStore')->name('api.wechat.authorizations.store');
+
+            // 小程序注册
+            $api->post('weapp/users', 'UsersController@weChatStore')
+                ->name('api.weapp.users.store');
         });
 
         //访问

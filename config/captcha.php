@@ -5,8 +5,8 @@ return [
     'characters' => '2346789abcdefghjmnpqrtuxyzABCDEFGHJMNPQRTUXYZ',
 
     'default'   => [
-        'length'    => 5,
-        'width'     => 120,
+        'length'    => 4,
+        'width'     => 100,
         'height'    => 36,
         'quality'   => 90,
     ],
@@ -30,8 +30,8 @@ return [
     ],
 
     'inverse'   => [
-        'length'    => 5,
-        'width'     => 120,
+        'length'    => 4,
+        'width'     => 100,
         'height'    => 36,
         'quality'   => 90,
         'sensitive' => true,
