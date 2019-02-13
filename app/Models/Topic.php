@@ -64,6 +64,11 @@ class Topic extends Model
         return $this->hasMany(Reply::class);
     }
 
+    public function topicReplies()
+    {
+        return $this->replies()->latest()->limit(15);
+    }
+
     public function category()
     {
         return  $this->belongsTo(Category::class);

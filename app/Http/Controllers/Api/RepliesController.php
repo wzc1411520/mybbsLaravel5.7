@@ -13,12 +13,12 @@ class RepliesController extends Controller
 {
     public function userIndex(User $user)
     {
-        $replices = $user->replies()->paginate(20);
+        $replices = $user->replies()->paginate(15);
         return ReplyResource::collection($replices);
     }
     public function index(Topic $topic)
     {
-        $replices = $topic->replies()->paginate(20);
+        $replices = $topic->replies()->latest()->paginate(15);
         return ReplyResource::collection($replices);
     }
     public function store(ReplyRequest $request,Topic $topic,Reply $reply)

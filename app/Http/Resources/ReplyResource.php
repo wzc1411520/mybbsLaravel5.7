@@ -21,8 +21,8 @@ class ReplyResource extends JsonResource
             'user' => in_array('user',$type)?new UserResource($this->user):$this->user_id,
             'topic' =>in_array('topic',$type)? new TopicResource($this->topic):$this->topic_id,
             'content' => $this->content,
-            'created_at' => $this->created_at->toDateTimeString(),
-            'updated_at' => $this->updated_at->toDateTimeString(),
+            'created_at' => $this->created_at->diffForHumans(),
+            'updated_at' => $this->updated_at->diffForHumans(),
         ];
     }
 }

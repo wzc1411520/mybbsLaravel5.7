@@ -28,7 +28,11 @@ class UsersController extends Controller
             'expires_in' => \Auth::guard('api')->factory()->getTTL() * 60
         ]]);
     }
-    
+
+    public function show(User $user)
+    {
+        return new UserResource($user);
+    }
     //编辑个人资料
     public function update(UserRequest $request)
     {

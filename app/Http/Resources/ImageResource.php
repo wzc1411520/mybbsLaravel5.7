@@ -18,7 +18,7 @@ class ImageResource extends JsonResource
             'id' => $this->id,
             'user_id' => $this->user_id,
             'type' => $this->type,
-            'path' => $this->path,
+            'path' => storage_url($this->path),
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
         ];

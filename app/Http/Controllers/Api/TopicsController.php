@@ -19,8 +19,8 @@ class TopicsController extends Controller
     public function index(Request $request,Topic $topic)
     {
         $topics = $topic->withOrder($request->order)->where(function ($query)use($request){
-            if ($categoryId = $request->category_id) {
-                $query->where('category_id', $categoryId);
+            if ($request->category_id&&$request->category_id!=0) {
+                $query->where('category_id', $request->category_id);
             }
         })->paginate(20);
 
@@ -53,6 +53,8 @@ class TopicsController extends Controller
 
     public function show(Topic $topic)
     {
+        $topic->increment('view_count');
+        $topic->save();
         return new TopicResource($topic);
     }
 }
