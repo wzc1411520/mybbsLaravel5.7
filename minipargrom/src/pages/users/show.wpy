@@ -4,8 +4,8 @@
   justify-content: center;
   align-items: center;
   flex-direction:column;
-  border-bottom: 1px solid #d4d4d4;
-  border-top: 1px solid #d4d4d4;
+  border-bottom: 1px solid #f2f2f2;
+  border-top: 1px solid #f2f2f2;
   padding: 10px 0;
 }
 .avatar {
@@ -45,17 +45,6 @@
 .meta{
   margin: 0 10px;
 }
-.weui-cell{
-  height: 25px;
-  line-height: 25px;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 5px 10px;
-  border-bottom: 1px solid #d4d4d4;
-  display: flex;
-  justify-content: space-between;
-   flex-direction:row;
-}
 </style>
 <template>
   <view class="weui-cells weui-cells_after-title">
@@ -71,17 +60,19 @@
       </view>
     </view>
 
-    <navigator class="weui-cell weui-cell_access user-links" url="/pages/topics/userIndex?user_id={{ user.id }}">
-      <view class="weui-cell__bd">
-        <view class="weui-cell__bd">Ta 的话题</view>
-      </view>
-     <view class="weui-cell__ft weui-cell__ft_in-access"><van-icon name="arrow" /></view>
+    <navigator class="" url="/pages/topics/userIndex?user_id={{ user.id }}">
+      <van-cell is-link custom-class='weui-cell__bd'>
+        <view slot="title">
+          <view class="van-cell-text">Ta 的话题</view>
+        </view>
+      </van-cell>
     </navigator>
     <navigator class="weui-cell weui-cell_access" url="/pages/replies/userIndex?user_id={{ user.id }}">
-      <view class="weui-cell__bd" url="">
-        <view>Ta 的回复</view>
-      </view>
-      <view class="weui-cell__ft weui-cell__ft_in-access"><van-icon name="arrow" /></view>
+      <van-cell is-link custom-class='weui-cell__bd'>
+        <view slot="title">
+          <view class="van-cell-text">Ta 的回复</view>
+        </view>
+      </van-cell>
     </navigator>
   </view>
 </template>

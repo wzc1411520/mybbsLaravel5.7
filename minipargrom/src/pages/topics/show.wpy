@@ -22,8 +22,8 @@ page{
   align-items: flex-start;     /* 垂直居中 */
   flex-direction: row;
   // border: 1px solid red;
-  border-bottom: 1px solid #cdcdcd;
-  border-top: 1px solid #cdcdcd;
+  border-bottom: 1px solid #efefef;
+  border-top: 1px solid #efefef;
 }
 .show-cell__bd{
   width:calc(100% - 100px);
