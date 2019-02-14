@@ -15,7 +15,7 @@ class TopicRequest extends FormRequest
             case 'POST':
                 return [
                     'title' => 'required|string',
-                    'body' => 'required|string',
+                    'body' => 'string',
                     'category_id' => 'required|exists:categories,id',
                 ];
                 break;

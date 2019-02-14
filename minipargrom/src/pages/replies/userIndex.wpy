@@ -1,0 +1,127 @@
+<style lang="less">
+.weui-loadmore_line {
+  border-top:1px solid #E5E5E5;
+  margin-top:2.4em;
+}
+.weui-loadmore {
+  width:65%;
+  margin:1.5em auto;
+  line-height:1.6em;
+  font-size:14px;
+  text-align:center;
+}
+.weui-loadmore__tips_in-line {
+  position:relative;
+  top:-0.9em;
+  padding:0 0.55em;
+  background-color:#FFFFFF;
+  color:#999999;
+}
+.weui-loadmore__tips {
+  display:inline-block;
+  vertical-align:middle;
+}
+.user_avatar{
+  width:50px;
+  height:50px;
+  margin:5px;
+  border:1px solid #f1f1f1;
+  padding:5px;
+  border-radius:5px;
+}
+.panel__hd{
+  font-size:14px;
+  border-top:1px solid #f1f1f1;
+  border-bottom:1px solid #f1f1f1;
+  padding:8px 0 8px 5px;
+
+}
+.reply-box{
+   display: flex;
+  // justify-content: center; /* 水平居中 */
+  align-items: center;     /* 垂直居中 */
+  flex-direction: row;
+  border-bottom:1px solid #f1f1f1;
+  margin:5px 0;
+
+}
+.reply_box__bd{
+  width: calc(100% - 80px);
+  position: relative;
+}
+.weui-media-box__desc{
+  word-wrap:break-word
+}
+.weui-media-box__title{
+
+}
+.weui-media-box__desc{
+  font-size: 14px;
+  color: rgb(166, 166, 166);
+  margin-bottom:18px;
+}
+.info__meta{
+  font-size: 12px;
+  color: rgb(184, 184, 184);
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+}
+image{
+  width: 100%;
+  height: 100%;
+}
+.reply-delete {
+  width:15px;
+  height:15px;
+  margin-right:5px;
+}
+</style>
+<template>
+   <view>
+     <van-notify id="van-notify" />
+    <repeat for="{{repliesData}}" key="id" index="index" item="reply">
+      <view class="reply-box" hover-class="weui-cell_active">
+        <navigator class="user_avatar" url="/pages/users/show?id={{ reply.user.id }}">
+          <image class="replyer-avatar weui-media-box__thumb" src="{{ reply.user.avatar }}" />
+        </navigator>
+        <navigator class="reply_box__bd" url="/pages/topics/show?id={{ reply.topic_id }}">
+          <view class="weui-media-box__title">{{  reply.topic.title }}</view>
+          <view class="weui-media-box__desc"><rich-text nodes="{{ reply.content }}" bindtap="tap"></rich-text></view>
+          <view class="weui-media-box__info">
+            <view class="info__meta">{{ reply.created_at }}</view>
+          </view>
+        </navigator>
+         <view>
+           <image wx:if="{{ reply.can_delete }}" class="reply-delete" src="/images/trash.png" @tap="deleteReply({{ reply.topcic }},{{ reply.id }})"/>
+        </view>
+      </view>
+    </repeat>
+    <view class="weui-loadmore weui-loadmore_line" wx:if="{{ noMoreData }}">
+      <view class="weui-loadmore__tips weui-loadmore__tips_in-line">暂无评论</view>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import replyMixin from '@/mixins/replyMixin'
+
+
+  export default class replyUserIndex extends wepy.page {
+    config = {
+      enablePullDownRefresh: true,
+      navigationBarTitleText: '用户回复列表',
+      onReachBottomDistance:300
+    }
+    mixins = [replyMixin]
+    data = {
+      requestData: {},
+      include: 'user,topic'
+    }
+    async onLoad(options) {
+      this.requestData.url = 'users/' + options.user_id + '/replies'
+      this.requestData.include = 'user,topic'
+      this.getReplies()
+    }
+  }
+</script>

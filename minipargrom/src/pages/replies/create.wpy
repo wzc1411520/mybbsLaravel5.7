@@ -1,0 +1,128 @@
+<style lang="less">
+.content {
+  height: 5.3em;
+}
+.create_page{
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+}
+.weui-btn{
+  width: 80%;
+  position: fixed;
+  bottom: 10px;
+}
+</style>
+<template>
+<view>
+  <van-notify id="van-notify" />
+  <view class="create_page">
+
+    <view class="weui-cells__title">评论内容</view>
+     <form bindsubmit="submit">
+      <view class="weui-cell__bd">
+        <textarea class="weui-textarea content" placeholder="请输入评论内容" name="content"/>
+      </view>
+      <button class="weui-btn" type="primary"  formType="submit">提交</button>
+      </form>
+    </view>
+  </view>
+
+</template>
+<script>
+  import wepy from 'wepy'
+  import api from '@/utils/api'
+  import Event from '@/utils/event.js'
+  import Notify from '@/components/vant/notify/notify';
+
+  export default class ReplyCreate extends wepy.page {
+    config = {
+      navigationBarTitleText: '添加回复'
+    }
+    data = {
+      // 回复的话题id
+      topicId: 0
+    }
+    onLoad(options) {
+      // 未登录跳转到登录页面
+      if (!this.$parent.checkLogin()) {
+        wepy.navigateTo({
+          url: '/pages/auth/login'
+        })
+      }
+      this.topicId = options.topic_id
+    }
+    // 提交表单
+    async submit (e) {
+      this.errors = null
+      let formData = e.detail.value
+
+      // 如果未填写内容，提示用户
+      if (!formData.content) {
+         Notify('请填写内容');
+        // wepy.showToast({
+        //   title: '请填写内容',
+        //   icon: 'none',
+        //   duration: 2000
+        // })
+
+        return
+      }
+
+      try {
+        // 请求发布回复接口
+        let createResponse = await api.authRequest({
+          url: 'topics/' + this.topicId + '/replies',
+          method: 'POST',
+          data: formData
+        })
+
+        console.log(createResponse)
+        // 请求成功，缓存用户数据
+        if (createResponse.statusCode === 201) {
+          // 设置全局变量，控制列表刷新
+          let pages = this.getCurrentPages()
+          // 如果有上一页
+          if (pages.length > 1) {
+            // 检查所有已经打开的页面，如果是话题列表页面就记录下来
+            let refreshPages = []
+            pages.forEach((page) => {
+              if (page.route === 'pages/topics/show' || page.route === 'pages/replies/index') {
+                refreshPages.push(page.route)
+              }
+            })
+            this.$parent.globalData.refreshPages = this.$parent.globalData.refreshPages.concat(refreshPages)
+            this.$apply()
+          }
+
+          // 提示发布成功
+           Notify({
+            text: '发布成功',
+            backgroundColor: '#1989fa',
+            duration:1000
+          });
+          // wepy.showToast({
+          //   title: '发布成功',
+          //   icon: 'success'
+          // })
+          Event.EventBus.emit('first-event', 123)
+
+          // 2 秒后返回上一页
+          setTimeout(function() {
+            wepy.navigateBack()
+          }, 2000)
+        }
+      } catch (err) {
+        console.log(err)
+         Notify('服务器错误，请联系管理员');
+        // wepy.showModal({
+        //   title: '提示',
+        //   content: '服务器错误，请联系管理员'
+        // })
+      }
+    }
+  }
+</script>

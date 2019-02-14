@@ -15,6 +15,7 @@ class TopicResource extends JsonResource
     public function toArray($request)
     {
         $type  =  explode(',',$request->include);
+        
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -25,8 +26,8 @@ class TopicResource extends JsonResource
             'reply'=>in_array('reply',$type)?ReplyResource::collection($this->topicReplies):'',
             'view_count' => (int) $this->view_count,
             'last_reply_user_id' => (int) $this->last_reply_user_id,
-            'isFavorited' => !!$this->favorites->where('user_id',$this->user_id)->count(),
-            'favoritesCount' => $this->favoritesCount,
+            'isFavorited' => in_array('isFavorited',$type)?!!$this->favorites->where('user_id',$request->userId)->count():'',
+            'favoritesCount' => in_array('isFavorited',$type)?$this->favoritesCount:'',
             'excerpt' => $this->excerpt,
             'slug' => $this->slug,
             'user_role' =>in_array('role',$type)?RoleResource::collection($this->user->roles):'',

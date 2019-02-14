@@ -1,0 +1,243 @@
+<style lang="less">
+.avatar-wrap {
+  position: relative;
+  margin: 20px;
+}
+.avatar {
+  width: 50px;
+  height: 50px;
+  display: block;
+  border-radius: 50%;
+}
+.logout_btn {
+  width: 80%;
+  margin:30px 10% 0px;
+}
+.introduction {
+  font-size: 13px;
+  color: #888888;
+}
+.weui-cell__bd{
+  width:104%;
+  height:45px;
+  line-height:45px;
+  padding-left:10px;
+  border-bottom:1px solid #acacac;
+}
+.avatar-cell{
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 80px;
+  border-bottom:1px solid #acacac;
+}
+.weui-cell{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.page__desc{
+  font-size: 12px;
+}
+.avatar-cell__bd{
+  width: 70%
+}
+</style>
+<template>
+  <view>
+    <van-notify id="van-notify" />
+    <view wx:if="{{ loggedIn }}">
+      <navigator class="avatar-cell" url="/pages/users/edit">
+        <view class="weui-cell__hd avatar-wrap">
+          <image class="avatar" src="{{ userInfo.avatar }}"/>
+        </view>
+        <view class="avatar-cell__bd">
+          <view>{{ userInfo.name }}</view>
+          <view class="page__desc">{{ userInfo.introduction || '' }}</view>
+        </view>
+        <view class="weui-cell__ft weui-cell__ft_in-access">
+          <van-icon name="arrow" />
+        </view>
+      </navigator>
+      <navigator class="weui-cell weui-cell_access" url="{{ userInfo ? '/pages/notifications/index' : '' }}">
+        <view class="weui-cell__bd" url="">
+          <view class="weui-cell__bd">
+            我的消息
+            <van-tag round type="danger" wx:if="{{ unreadCount }}">{{ unreadCount }}</van-tag>
+          </view>
+        </view>
+        <view class="weui-cell__ft weui-cell__ft_in-access"><van-icon name="arrow" /></view>
+      </navigator>
+      <navigator class="weui-cell weui-cell_access" url="{{userInfo ? '/pages/topics/userIndex?user_id='+ userInfo.id : '' }}">
+        <view class="weui-cell__bd" url="">
+          <view class="weui-cell__bd">我的话题</view>
+        </view>
+        <view class="weui-cell__ft weui-cell__ft_in-access"><van-icon name="arrow" /></view>
+      </navigator>
+      <navigator class="weui-cell weui-cell_access" url="{{userInfo ? '/pages/replies/userIndex?user_id='+ userInfo.id : '' }}">
+        <view class="weui-cell__bd" url="">
+          <view class="weui-cell__bd">我的回复</view>
+        </view>
+        <view class="weui-cell__ft weui-cell__ft_in-access"><van-icon name="arrow" /></view>
+      </navigator>
+      <navigator class="weui-cell weui-cell_access" url="">
+        <view class="weui-cell__bd" url="">
+          <view class="weui-cell__bd">我的关注</view>
+        </view>
+        <view class="weui-cell__ft weui-cell__ft_in-access"><van-icon name="arrow" /></view>
+      </navigator>
+      <navigator class="weui-cell weui-cell_access" url="">
+        <view class="weui-cell__bd" url="">
+          <view class="weui-cell__bd">我的点赞</view>
+        </view>
+        <view class="weui-cell__ft weui-cell__ft_in-access"><van-icon name="arrow" /></view>
+      </navigator>
+      <van-button round type="primary" custom-class='logout_btn' @tap="logout">退出登录</van-button>
+    </view>
+    <view wx:else>
+       <van-popup show="{{ show }}"
+        bind:close="onClose"
+        custom-style="border-radius:10px;overflow:hidden"
+        >
+        <van-transition name="fade-left" show="{{ !is_register }}">
+          <login wx:if="{{ !is_register }}"></login>
+        </van-transition>
+        <van-transition name="fade-right" show="{{ is_register }}">
+           <register wx:if="{{ is_register }}"></register>
+        </van-transition>
+
+      </van-popup>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import api from '@/utils/api'
+   //引入组件文件
+  import Login from '../../components/auth/login';
+  import Register from '../../components/auth/register';
+  import Notify from '../../components/vant/notify/notify';
+  import unreadCount from '@/mixins/unreadCount'
+
+  export default class UserMe extends wepy.page {
+    async onShow() {
+      this.show=true
+      let accessToken = wepy.getStorageSync('access_token');
+      let expiredAt   = wepy.getStorageSync('access_token_expired_at')
+      if(!accessToken&& new Date().getTime()>expiredAt){
+        try {
+        // 打开页面自动调用一次登录
+        let authResponse = await api.login()
+        // 201 为登录正确，返回上一页
+          if (authResponse.statusCode === 200){
+            this.loggedIn = true
+            this.userInfo = authResponse.data.userInfo
+            this.$parent.globalData.userInfo = authResponse.data.userInfo
+            wepy.setStorageSync('user', authResponse.data.userInfo)
+            // wepy.navigateBack()
+            Notify({
+              text: '登录成功',
+              backgroundColor: '#1989fa',
+              duration: 1000,
+            });
+          }else{
+            Notify('请绑定账号密码');
+            // wepy.showModal({
+            //   title: '提示',
+            //   content: '请绑定账号密码'
+            // })
+          }
+        } catch (err) {
+          console.log(err)
+          Notify('服务器错误，请联系管理员');
+          // wepy.showModal({
+          //   title: '提示',
+          //   content: '服务器错误，请联系管理员'
+          // })
+        }
+      }else{
+        this.userInfo =  wepy.getStorageSync('user');
+        this.loggedIn = true
+      }
+      if(!this.userInfo&&accessToken){
+          let userResponse = await api.authRequest('user')
+          this.userInfo = userResponse.data.data
+          this.$parent.globalData.userInfo = userResponse.data.data
+        }
+        this.$apply()
+    }
+     events = {
+        'login-success': (...args) => {
+            // let $event = args[args.length - 1]
+            // console.log(args)
+            // console.log($event)
+              // console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`);
+              this.userInfo = args[0]['userInfo']
+              this.$parent.globalData.userInfo = args[0]['userInfo']
+              this.loggedIn = true
+              this.$apply()
+        },
+        'is_register':(...args) => {
+            this.is_register = args[0]
+            this.$apply()
+        }
+    }
+    config = {
+      navigationBarTitleText: '我的'
+    }
+    data = {
+      loggedIn: false,
+      show:true,
+      userInfo:'',
+      is_register:false
+    }
+    mixins = [unreadCount]
+//声明组件，分配组件id为child
+    components = {
+        login: Login,
+        register:Register
+    };
+    watch = {
+      show (newValue, oldValue) {
+          console.log(`num value: ${oldValue} -> ${newValue}`)
+      }
+    }
+
+
+    methods={
+      is_login(){
+        if (wepy.getStorageSync('access_token')) {
+          this.loggedIn = true
+        }
+         console.log(this.show)
+      },
+       onClose() {
+        this.show = false
+        wepy.switchTab({
+          url: '/pages/index'
+        })
+        // this.setData({ show: false });
+      },
+      async logout(e){
+        try{
+          let logoutResponse = await api.logout()
+          if(logoutResponse.statusCode === 204){
+            this.loggedIn = false
+            this.is_register=false
+            this.$parent.globalData.userInfo = null
+            this.userInfo = null
+            this.$apply()
+          }
+        }catch(err){
+          console.log(err)
+          Notify('服务器错误，请联系管理员');
+          // wepy.showModal({
+          //   title:'提示',
+          //   content:'服务器错误,请联系管理员'
+          // })
+        }
+      }
+    }
+  }
+</script>

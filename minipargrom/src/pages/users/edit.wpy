@@ -1,0 +1,191 @@
+<style lang="less">
+  .introduction {
+    height: 3.3em;
+  }
+  .content {
+    height: 50px !important;
+  }
+  .avatar {
+    width: 80px;
+    height: 80px;
+    display: block;
+    border-radius: 50%;
+  }
+  .avatar-wrap {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
+<template>
+  <view class="page">
+    <van-notify id="van-notify" />
+    <view class="page__bd">
+        <view class="avatar-wrap">
+          <image class="avatar" src="{{ user.avatar }}" @tap="updateAvatar"/>
+        </view>
+        <van-cell-group>
+          <van-field
+            value="{{ user.name }}"
+            placeholder="请输入姓名"
+            label="姓名"
+            error="{{ errors.name}}"
+            error-message="{{ errors.name[0]}}"
+            bind:change='bindNameValue'
+          />
+          <van-field
+            value="{{ user.email }}"
+            placeholder="请输入邮箱"
+            label="邮箱"
+            error="{{ errors.email}}"
+            error-message="{{ errors.email[0]}}"
+            bind:change='bindEmailValue'
+          />
+          <van-field
+            type="textarea"
+            value="{{ user.introduction }}"
+            placeholder="请输入个人简介"
+            label="个人简介"
+            error="{{ errors.introduction }}"
+            error-message="{{ errors.introduction[0]}}"
+            autosize='{{true}}'
+            input-class='content'
+            bind:change='bindIntroductionValue'
+          />
+        </van-cell-group>
+        <!-- 提交表单 -->
+        <view class="weui-btn-area">
+          <button type="primary" @tap="submitBtn">修改</button>
+        </view>
+
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import api from '@/utils/api'
+  import Notify from '@/components/vant/notify/notify';
+
+  export default class UserEdit extends wepy.page {
+    config = {
+      navigationBarTitleText: '修改个人信息'
+    }
+    data = {
+      // 用户信息
+      user: null,
+      // 错误信息
+      errors: null,
+
+      editData:{}
+    }
+    async onShow() {
+      // 获取当前用户信息
+      this.user = await this.$parent.getCurrentUser()
+      this.$apply()
+      console.log(this.user)
+    }
+    // 表单提交
+    async submitBtn () {
+      this.errors = null
+      try {
+        let editResponse = await api.authRequest({
+          url: 'user',
+          method: 'PUT',
+          data: this.editData
+        })
+
+        // 设置报错信息
+        if (editResponse.statusCode === 422) {
+          this.errors = editResponse.data.errors
+          this.$apply()
+        }
+
+        // 请求成功，缓存用户数据
+        if (editResponse.statusCode === 200) {
+          this.user = editResponse.data
+          wepy.setStorageSync('user', editResponse.data)
+          this.$apply()
+          wepy.switchTab({
+            url: '/pages/users/me'
+          })
+
+          Notify({
+            text: '修改成功',
+            backgroundColor: '#1989fa',
+            duration: 1000,
+          });
+          // wepy.showToast({
+          //   title: '修改成功',
+          //   icon: 'success',
+          //   duration: 2000
+          // })
+        }
+      } catch (err) {
+        console.log(err)
+        Notify('服务器错误，请联系管理员');
+        // wepy.showModal({
+        //   title: '提示',
+        //   content: '服务器错误，请联系管理员'
+        // })
+      }
+    }
+    methods = {
+      bindNameValue(e){
+        this.editData.name =  e.detail
+      },
+       // 绑定密码 input 变化
+      bindEmailValue (e) {
+        this.editData.email =  e.detail
+      },
+      bindIntroductionValue (e) {
+        this.editData.introduction =  e.detail
+      },
+      async updateAvatar () {
+        // 选择头像图片
+        let image = await wepy.chooseImage({count: 1})
+
+        try {
+          // 获取选择的图片
+          let avatar = image.tempFilePaths[0]
+
+          // 调用上传图片接口
+          let imageResponse = await api.updateFile({
+            url: 'images',
+            method: 'POST',
+            name: 'image',
+            formData: {
+              type: 'avatar'
+            },
+            filePath: avatar
+          })
+
+          // 上传成功成功记录数据
+          if (imageResponse.statusCode === 201) {
+            // 小程序上传结果没有做 JSON.parse，需要手动处理
+            let responseData = JSON.parse(imageResponse.data)
+            console.log(responseData)
+            this.user.avatar = responseData.path
+            this.editData.avatar_image_id = responseData.id
+            this.$apply()
+             Notify({
+              text: '上传成功',
+              backgroundColor: '#1989fa',
+              duration: 1000,
+            });
+          }else{
+             Notify('上传失败')
+          }
+        } catch (err) {
+          Notify('服务器错误，请联系管理员')
+          console.log(err)
+          // wepy.showModal({
+          //   title: '提示',
+          //   content: '服务器错误，请联系管理员'
+          // })
+        }
+      }
+    }
+  }
+</script>

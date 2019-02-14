@@ -1,0 +1,99 @@
+<style lang="less">
+.topic{
+  display: flex;
+  justify-content:flex-start;
+  align-items: center;     /* 垂直居中 */
+  width: 100%;
+  height: 100px;
+  border-bottom: 1px solid #f1f1f1;
+  position: relative;
+}
+.user_avatar{
+  width:55px;
+  height:55px;
+  margin:5px;
+  border:1px solid #f1f1f1;
+  padding:5px;
+  border-radius:5px;
+}
+.reply-cout{
+  margin-right: 5px;
+  position: absolute;
+  right: 0px;
+}
+.topic-box{
+  width: calc(100% - 115px);
+  word-wrap:break-word
+}
+image { width: 100%; height: 100%;}
+.topic-box_top{
+
+
+  .topic-box__title{
+
+  }
+}
+.topic-info{
+  display:flex;
+  flex-direction:row;
+  font-size:13px;
+  color:#bfbfbf;
+  flex-wrap:wrap;
+  position:relative;
+  bottom:-5px;
+  .box__info__meta{
+
+  }
+}
+</style>
+
+<template>
+<view class='topic'>
+  <view class="user_avatar">
+    <image class="media-box__thumb" src="https://iocaffcdn.phphub.org/uploads/avatars/3995_1516760409.jpg?imageView2/1/w/200/h/200" />
+  </view>
+  <view class="topic-box">
+    <view class="topic-box_top">
+      topic.titleupdated_at1231321231231231321231updated_a
+    </view>
+    <view class="topic-info">
+      <view class="box__info__meta">category.name • </view>
+      <view class="box__info__meta">user.name • </view>
+      <view class="box__info__meta">updated_at1231321231231231321231</view>
+    </view>
+  </view>
+  <view class="reply-cout">
+    <van-tag plain round mark color="#b8b8b8">10</van-tag>
+  </view>
+</view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class Topic extends wepy.component{
+    data = {
+      active: 0,
+      topics: {
+        user:{
+          avatar:'https://iocaffcdn.phphub.org/uploads/avatars/3995_1516760409.jpg?imageView2/1/w/200/h/200',
+          name:'1sb'
+        },
+        category:{
+          name:'分类'
+        },
+        reply_count:10,
+        id: 1,
+        title: '测试1',
+        body: 'larabbs 测试内容1',
+        updated_at:'1993/7/8'
+      }
+    }
+    props = {
+      title: String,
+    }
+    onShow  () {
+      console.log(this.title);
+      console.log(this.data.title); // 输出 “mytitle”
+    }
+  }
+</script>

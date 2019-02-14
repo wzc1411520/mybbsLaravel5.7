@@ -1,0 +1,16 @@
+{
+	"description": "A WePY project",
+	"setting": {
+		"urlCheck": false,
+		"es6": false,
+		"postcss": false,
+		"minified": false,
+		"newFeature": true,
+		"autoAudits": false
+	},
+	"compileType": "miniprogram",
+	"appid": "wxc04f8f2f0ea35101",
+	"projectname": "%E7%8C%AB%E5%A5%B4Blogs",
+	"miniprogramRoot": "dist/",
+	"condition": {}
+}

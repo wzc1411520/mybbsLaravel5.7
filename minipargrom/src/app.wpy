@@ -1,0 +1,192 @@
+<style lang="less">
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+</style>
+
+<script>
+import wepy from 'wepy'
+import 'wepy-async-function'
+import { setStore } from 'wepy-redux'
+import configStore from './store'
+import api from '@/utils/api'
+import Notify from './components/vant/notify/notify';
+
+const store = configStore()
+setStore(store)
+
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/index',
+      'pages/users/me',
+      'pages/users/edit',
+       'pages/users/show',
+      'pages/auth/login',
+      'pages/topics/show',
+      'pages/topics/userIndex',
+      'pages/topics/create',
+      'pages/replies/userIndex',
+      'pages/replies/create',
+      'pages/notifications/index'
+    ],
+    window: {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#fff',
+      navigationBarTitleText: 'mybbs',
+      navigationBarTextStyle: 'black'
+    },
+    tabBar: {
+      list: [{
+        pagePath: 'pages/index',
+        text: '首页',
+        iconPath: 'images/index.png',
+        selectedIconPath: 'images/index_selected.png'
+      }, {
+        pagePath: 'pages/users/me',
+        text: '我的',
+        iconPath: 'images/user.png',
+        selectedIconPath: 'images/user_selected.png'
+      }],
+      color: '#707070',
+      selectedColor: '#00b5ad'
+    },
+    usingComponents: {
+      "van-button": "../components/vant/button/index",
+      "van-nav-bar": "../components/vant/nav-bar/index",
+       "van-tab": "../components/vant/tab/index",
+       "van-tabs": "../components/vant/tabs/index",
+       "van-popup": "../components/vant/popup/index",
+       "van-toast": "../components/vant/toast/index",
+       "van-field": "../components/vant/field/index",
+       "van-transition": "../components/vant/transition/index",
+       "van-icon": "../components/vant/icon/index",
+       "van-notify": "../components/vant/notify/index",
+       "van-tag": "../components/vant/tag/index",
+        "van-popup": "../components/vant/popup/index",
+        "van-picker": "../components/vant/picker/index",
+        "van-action-sheet": "../components/vant/action-sheet/index",
+        "van-cell": "../components/vant/cell/index",
+        "van-cell-group": "../components/vant/cell-group/index"
+    }
+  }
+
+  globalData = {
+    userInfo: null,
+    refreshPages: [],
+    unreadCount: 0
+  }
+  async onLaunch() {
+
+    // 小程序启动，调用一起获取未读消息数
+    this.updateUnreadCount()
+    // 每隔 60 秒，调用一起获取未读消息数
+    setInterval(() => {
+      this.updateUnreadCount()
+    }, 60000)
+
+    let res = await wepy.login();
+    this.testAsync();
+  }
+
+  // 获取未读消息数
+  async updateUnreadCount() {
+    // 未登录不需要请求
+    if (!this.checkLogin()) {
+      return
+    }
+
+    // 请求消息统计接口
+    let notificationResponse = await api.authRequest('user/notifications/stats', false)
+
+    //  请求成功，赋值全局变量 unreadCount
+    if (notificationResponse.statusCode === 200) {
+      this.globalData.unreadCount = notificationResponse.data.unread_count
+    }
+  }
+
+  // 获取当前登录用户信息
+  async getCurrentUser () {
+    // 如果用户未登录
+    if (!this.checkLogin()) {
+      return null
+    }
+
+    // 从缓存中获取用户信息
+    let user = wepy.getStorageSync('user')
+
+    try {
+      // 登录了但是缓存中没有，请求接口获取
+      if (!user) {
+        let userResponse = await api.authRequest('user')
+        // 状态码为 200 表示请求成功
+        if (userResponse.statusCode === 200) {
+          console.log(userResponse)
+          user = userResponse.data.data
+          wepy.setStorageSync('user', user)
+        }
+      }
+    } catch (err) {
+      console.log(err)
+      Notify('服务器错误，请联系管理员');
+    }
+
+    return user
+  }
+
+  checkRefreshPages (route, callback) {
+    let refreshIndex = this.globalData.refreshPages.indexOf(route)
+
+    if (refreshIndex === -1) {
+      return
+    }
+
+    this.globalData.refreshPages.splice(refreshIndex, 1)
+    callback && callback()
+  }
+  // 用户是否已经登录
+  checkLogin () {
+    return (wepy.getStorageSync('access_token') !== '')
+  }
+
+  constructor () {
+    super()
+    this.use('requestfix')
+    this.use('promisify')
+  }
+
+  sleep (s) {
+    return new Promise((resolve, reject) => {
+      wepy.showLoading({title: '加载中'})
+      setTimeout(() => {
+        wepy.hideLoading()
+        resolve('promise resolved')
+      }, s * 1000)
+    })
+  }
+
+  async testAsync () {
+    const data = await this.sleep(3)
+    console.log(data)
+  }
+
+  getUserInfo(cb) {
+    const that = this
+    if (this.globalData.userInfo) {
+      return this.globalData.userInfo
+    }
+    wepy.getUserInfo({
+      success (res) {
+        that.globalData.userInfo = res.userInfo
+        cb && cb(res.userInfo)
+      }
+    })
+  }
+
+}
+</script>

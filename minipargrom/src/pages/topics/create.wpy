@@ -1,0 +1,309 @@
+<style lang="less">
+.content {
+  min-height: 30vh !important;
+}
+.create_page{
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+}
+.weui-btn{
+  width: 80%;
+  position: fixed;
+  bottom: 10px;
+}
+.title{
+margin:10px 0;
+border-bottom:1px solid #e1e1e1 !important;
+}
+.picture{
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin:5px;
+  background-color:#e0e0e0;
+}
+.picture_content{
+  display:flex;
+  width:100%;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-content: flex-start
+}
+.weui-textarea-counter{
+  font-size:13px;
+  color:#e2e2e2;
+  padding-left:10px;
+}
+.btn{
+  position: fixed !important;
+  top: 10px;
+  right: 10px;
+  z-index:999;
+}
+</style>
+
+<template>
+<view>
+  <van-notify id="van-notify" />
+  <view class="create_page">
+    <!-- <view class="weui-cells__title">评论内容</view> -->
+    <!-- <form bindsubmit="submit"> -->
+    <!-- <view class="weui-cell__bd"> -->
+      <van-cell-group style="width: 100%;">
+        <van-field
+          value="{{ addData.title }}"
+          placeholder="请输入标题"
+          border="{{ false }}"
+          bind:change="handleTitleInput"
+          input-class='title'
+        />
+        <van-field
+          value="{{ addData.content }}"
+          type ="textarea"
+          autosize
+          placeholder="请发布内容"
+          border="{{ false }}"
+          bind:change="handleContentInput"
+          input-class='content'
+        />
+        <van-cell
+          value="{{ choosecattegory }}"
+          title="分类"
+          icon="label-o"
+          bind:click="onChooseCategory"
+        />
+        <van-cell
+          value="{{ status }}"
+          icon="friends-o"
+          title="谁可以看"
+          bind:click="onChooseCategory"
+        />
+      </van-cell-group>
+      <van-action-sheet
+        show="{{ show }}"
+        actions="{{ category }}"
+        bind:close="onClose"
+        bind:select="onSelect"
+      />
+      <!-- 正文输入字数统计 -->
+      <view class="weui-textarea-counter">{{contentCount}}/500</view>
+      <view class="picture_content">
+        <repeat for="{{ avatar }}" key="id" index="index" item="pic">
+          <view class="picture" >
+            <van-icon name="{{pic}}" size='70px' />
+            <!-- <van-icon name="cross" size='10px' @tap='delImage' /> -->
+          </view>
+        </repeat>
+        <view class="picture" wx:if="{{isChooseImg}}">
+          <van-icon name="plus" size='40px' @tap='chooseImage' />
+        </view>
+      <!-- </view> -->
+    </view>
+    <van-button type="primary" size="small" custom-class='btn' @tap='submit'>发布</van-button>
+    <!-- </form> -->
+  </view>
+</view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import api from '@/utils/api'
+  // import util from '@/utils/util'
+  import Event from '@/utils/event.js'
+  import Notify from '@/components/vant/notify/notify';
+
+  export default class TopicCreate extends wepy.page {
+    config = {
+      navigationBarTitleText: '发布话题'
+    }
+    data = {
+      contentCount: 0,
+      avatar:[],
+      addData:{},
+      img:[],
+      category:[],
+      show: false,
+      choosecattegory:''
+    }
+    onLoad(options) {
+      // 未登录跳转到登录页面
+      if (!this.$parent.checkLogin()) {
+        wepy.navigateTo({
+          url: '/pages/auth/login'
+        })
+      }
+      this.topicId = options.topic_id
+      this.addData.avatar=[]
+      this.category = wepy.getStorageSync('category')
+      this.category.shift()
+      // category.forEach(cate=>{
+      //   if(cate.id!=0){
+      //     this.category.push({'name':cate.name})
+      //   }
+      // })
+      if(wepy.getStorageSync('newTopic')){
+        this.addData = wepy.getStorageSync('newTopic')
+        this.choosecattegory = this.category[this.addData.category_id-1].name?this.category[this.addData.category_id-1].name:''
+        this.avatar = this.addData.avatar
+        this.contentCount = this.addData.content.length
+      }
+
+      this.$apply()
+    }
+    computed = {
+      isChooseImg(){
+        return this.avatar.length==8?false:true
+      }
+    }
+    methods = {
+      upload(){
+        console.log('shancghaun')
+      },
+      handleContentInput(e) {
+        const value = e.detail
+        console.log(e.detail)
+        this.addData.content = value
+        this.contentCount = value.length  //计算已输入的正文字数
+        wepy.setStorageSync('newTopic',this.addData)
+      },
+      handleTitleInput(e){
+        const value = e.detail
+        console.log(e.detail)
+        this.addData.title = value
+        wepy.setStorageSync('newTopic',this.addData)
+      },
+      onClose() {
+        this.show=false
+      },
+      onChooseCategory(){
+        this.show=true
+      },
+
+      onSelect(event) {
+        console.log(event.detail);
+        this.choosecattegory = event.detail.name
+        this.addData.category_id = event.detail.id
+        this.show=false
+        this.$apply()
+        wepy.setStorageSync('newTopic',this.addData)
+      },
+      async chooseImage () {
+        // 选择头像图片
+        let image = await wepy.chooseImage({count: 8})
+        let avatar = image.tempFilePaths
+        if(this.avatar.length+avatar.length>8){
+          Notify('上传已达上限,最多8张')
+          return
+        }
+         // 获取选择的图片
+        this.img = this.img.concat(avatar)
+        this.$apply()
+        //上传图片  添加话题
+        this.img.forEach(avatar => {
+          this.upload(avatar)
+        });
+      }
+    }
+    async upload(avatar){
+      try {
+        // 调用上传图片接口
+        let imageResponse = await api.updateFile({
+          url: 'images',
+          method: 'POST',
+          name: 'image',
+          formData: {
+            type: 'topic'
+          },
+          filePath: avatar
+        })
+
+        // 上传成功成功记录数据
+        if (imageResponse.statusCode === 201) {
+          // 小程序上传结果没有做 JSON.parse，需要手动处理
+          let responseData = JSON.parse(imageResponse.data)
+          this.avatar = this.avatar.concat(responseData.path)
+          this.addData.avatar= this.avatar
+          this.$apply()
+          wepy.setStorageSync('newTopic',this.addData)
+          // Notify({
+          //   text: '上传成功',
+          //   backgroundColor: '#1989fa',
+          //   duration: 1000,
+          // });
+        }else{
+            Notify('上传失败')
+        }
+      } catch (err) {
+        Notify('服务器错误，请联系管理员')
+        console.log(err)
+        // wepy.showModal({
+        //   title: '提示',
+        //   content: '服务器错误，请联系管理员'
+        // })
+      }
+    }
+    onHide() {
+      this.addData.avatar= this.avatar
+      this.$apply()
+      wepy.setStorageSync('newTopic',this.addData)
+    }
+    async submit(){
+      if(!this.addData.title){
+        Notify('标题不可以为空')
+        return
+      }
+      if(!this.addData.category_id){
+        Notify('请选择分类')
+        return
+      }
+      if(!this.addData.avatar&&!this.addData.content){
+        Notify('请写点东西')
+        return
+      }
+
+      this.addData.avatar= this.avatar
+      this.$apply()
+      try{
+        let addTopicResponse = await api.authRequest({
+          url: 'topics',
+          method: 'POST',
+          data: this.addData
+        })
+        if (addTopicResponse.statusCode === 201) {
+          Notify({
+            text: '发布成功',
+            backgroundColor: '#1989fa',
+            duration: 800,
+          });
+          wepy.removeStorageSync('newTopic')
+
+          Event.EventBus.emit('successCreat', this.addData.category_id)
+          // 2 秒后返回上一页
+          setTimeout(function() {
+            wepy.navigateBack()
+          }, 1000)
+
+          // wepy.showToast({
+          //   title: '修改成功',
+          //   icon: 'success',
+          //   duration: 2000
+          // })
+        }
+      } catch (err) {
+        console.log(err)
+        Notify('服务器错误，请联系管理员');
+        // wepy.showModal({
+        //   title: '提示',
+        //   content: '服务器错误，请联系管理员'
+        // })
+
+      }
+    }
+  }
+</script>

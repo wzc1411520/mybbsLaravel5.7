@@ -29,7 +29,15 @@ class TopicsController extends Controller
 
     public function store(TopicRequest $request,Topic $topic)
     {
-        $topic->fill($request->all());
+        $str = '<div>';
+//        $topic->fill($request->all());
+        foreach ($request->avatar as $v){
+            $str.="<img src='$v' width='200'/>";
+        }
+        $str .= "</div>";
+        $topic->title = $request->title;
+        $topic->category_id = $request->category_id;
+        $topic->body = '<div>'.$request->content.'</div>'.$str;
         $topic->user_id = $this->user()->id;
         $topic->save();
         return new TopicResource($topic);
