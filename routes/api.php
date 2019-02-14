@@ -119,6 +119,9 @@ $api->version('v1', [
                 //取消关注
 
                 //我的点赞
+                //获取用户的点赞记录
+                $api->post('users/{user}/favorite', 'FavoritesController@favoriteIndex')
+                    ->name('api.favorite.users.index');
 
                 //我的关注
 

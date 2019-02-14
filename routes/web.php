@@ -11,9 +11,11 @@
 |
 */
 
-//Route::get('/', function () {
-//    return view('welcome');
-//});
+Route::get('test', function () {
+    $favorite = new \App\Models\Favorite();
+    $topic = $favorite->topic;
+    dd($topic);
+});
 Route::get('/', 'TopicsController@index')->name('root');
 
 //Auth::routes();

@@ -2,12 +2,29 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\FavoriteIndexResource;
 use App\Models\Reply;
 use App\Models\Topic;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class FavoritesController extends Controller
 {
+    public function favoriteIndex(Request $request,User $user)
+    {
+        $include = strtolower($request->include);
+        $favorites = $user->favorites()->where(function ($query)use($include){
+            if('topic'==$include){
+                $query->whereFavoritedType('App\Models\Topic');
+            }
+            if('reply'==$include){
+                $query->whereFavoritedType('App\Models\Reply');
+            }
+
+        })->latest()->with('favorited')->paginate();
+//        return $favorites;
+        return FavoriteIndexResource::collection($favorites);
+    }
     //回复点赞
     public function storeReply (Reply $reply)
     {

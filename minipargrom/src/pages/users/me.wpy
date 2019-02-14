@@ -3,6 +3,7 @@
   position: relative;
   margin: 10px;
 }
+
 .avatar {
   width: 80px;
   height: 80px;
@@ -31,6 +32,7 @@
   width: 100%;
   // height: 80px;
   border-bottom:1px solid #f1f1f1;
+  background:linear-gradient(to top left, rgb(230, 231, 219) 0%, rgb(196, 233, 255) 45%, rgb(238, 238, 238) 100%);
 }
 .weui-cell{
   display: flex;
@@ -117,17 +119,17 @@
           </view>
         </van-cell>
       </navigator>
-      <navigator class="weui-cell weui-cell_access" url="">
+      <navigator class="weui-cell weui-cell_access" url="{{userInfo ? '/pages/favorites/favoriteIndex?user_id='+ userInfo.id : '' }}">
         <van-cell is-link custom-class='weui-cell__bd'>
           <view slot="title">
-            <view class="van-cell-text">我的关注</view>
+            <view class="van-cell-text">我的点赞</view>
           </view>
         </van-cell>
       </navigator>
       <navigator class="weui-cell weui-cell_access" url="">
         <van-cell is-link custom-class='weui-cell__bd'>
           <view slot="title">
-            <view class="van-cell-text">我的点赞</view>
+            <view class="van-cell-text">我的关注</view>
           </view>
         </van-cell>
       </navigator>

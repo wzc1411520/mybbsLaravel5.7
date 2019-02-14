@@ -141,7 +141,7 @@
         let replicsResponse = await api.request({
           url: this.syncUrl,
           data: this.syncData
-        })
+        },false)
         if (replicsResponse.statusCode === 200) {
           let replics = replicsResponse.data.data
 

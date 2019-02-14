@@ -26,14 +26,15 @@ export default class extends wepy.app {
       'pages/index',
       'pages/users/me',
       'pages/users/edit',
-       'pages/users/show',
+      'pages/users/show',
       'pages/auth/login',
       'pages/topics/show',
       'pages/topics/userIndex',
       'pages/topics/create',
       'pages/replies/userIndex',
       'pages/replies/create',
-      'pages/notifications/index'
+      'pages/notifications/index',
+      'pages/favorites/favoriteIndex'
     ],
     window: {
       backgroundTextStyle: 'light',

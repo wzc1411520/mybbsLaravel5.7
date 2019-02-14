@@ -1,0 +1,40 @@
+<style lang="less">
+
+</style>
+<template>
+  <view>
+    <view>
+    <view>
+      456
+    </view>
+  </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class TopicFavorite extends wepy.component {
+    data = {
+      // 话题数据
+      repliesData: null,
+      // 有没有更多数据
+      noMoreData: false,
+      // 是否在加载中
+      isLoading: false,
+      syncData:{},
+      reply_count:0
+    }
+    props = {
+      // 父页面传入，请求参数
+      // syncreplyData: {
+      //   type: Object,
+      //   default: {}
+      // },
+      // 父页面传入，请求url
+      // syncUrl: {
+      //   type: String,
+      //   default: 'topics'
+      // },
+    }
+  }
+</script>
