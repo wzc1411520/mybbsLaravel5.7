@@ -1,40 +1,208 @@
 <style lang="less">
+.weui-loadmore_line {
+  border-top:1px solid #E5E5E5;
+  margin-top:2.4em;
+}
+.weui-loadmore {
+  width:65%;
+  margin:1.5em auto;
+  line-height:1.6em;
+  font-size:14px;
+  text-align:center;
+}
+.weui-loadmore__tips_in-line {
+  position:relative;
+  top:-0.9em;
+  padding:0 0.55em;
+  background-color:#FFFFFF;
+  color:#999999;
+}
+.weui-loadmore__tips {
+  display:inline-block;
+  vertical-align:middle;
+}
+image{
+  width: 100%;
+  height: 100%;
+}
+.notificationer-avatar{
+  width:55px;
+  height:55px;
+  margin:5px;
+  border:1px solid #f1f1f1;
+  padding:5px;
+  border-radius:5px;
+}
+.weui-media-box{
+  display: flex;
+  align-items: flex-start;     /* 垂直居中 */
+  flex-direction: row;
+  border-top:1px solid #f0f0f0;
 
+}
+.box__bd{
+  display:flex;
+  flex-direction:column;
+  width:calc(100% - 80px);
+  // align-content:space-between;
+  margin:10px 0px;
+  justify-content:space-between;
+  // height:70px;
+
+}
+.user_name{
+  display:inline-block;
+  vertical-align:middle;
+  font-size:15px;
+  color:#949494;
+}
+.topic_title{
+  display:inline-block;
+  vertical-align:middle;
+  font-size:13px;
+  color:#7a7a7a;
+}
+.weui-media-box__desc{
+ font-size:14px;
+}
+.weui-media-box__info{
+  font-size:13px;
+  color:#7a7a7a;
+}
 </style>
 <template>
   <view>
-    <view>
-    <view>
-      456
+    <van-tabs animated swipeable color="#00b5ad ">
+      <van-tab title="话题">
+        <view>
+          <repeat for="{{ favoriteTopicData }}" wx:key="id" index="index" item="favorite">
+          <!-- 话题 -->
+            <view class="weui-media-box" hover-class="weui-cell_active">
+              <navigator class="notificationer-avatar" url="/pages/users/show?id={{ favorite.topic_user_id }}">
+                <image  src="{{ favorite.topic_user_avatar }}" />
+              </navigator>
+              <view class="box__bd">
+                <navigator class="weui-media-box__title" url="/pages/topics/show?id={{ favorite.topic_id }}">
+                  <view class='topic_title'>{{ favorite.topic_title }}</view>
+                </navigator>
+                <view class="weui-media-box__info">
+                  <view class="weui-media-box__info__meta">{{ favorite.created_at}}我赞了 TA 的话题</view>
+                </view>
+              </view>
+            </view>
+          </repeat>
+        </view>
+      </van-tab>
+      <van-tab title="评论">
+        <view>
+          <repeat for="{{ favoriteReplyData }}" wx:key="id" index="index" item="favorite">
+          <!-- 话题 -->
+          <view class="weui-media-box" hover-class="weui-cell_active">
+            <navigator class="notificationer-avatar" url="/pages/users/show?id={{ favorite.reply_user_id}}">
+              <image  src="{{ favorite.reply_user_avatar }}" />
+            </navigator>
+            <view class="box__bd">
+              <navigator class="weui-media-box__title" url="/pages/topics/show?id={{ favorite.topic_id }}">
+                <view class='topic_title'>{{ favorite.topic_title }}</view>
+                <view class="weui-media-box__desc"><rich-text nodes="评论:{{ favorite.reply_content }}"></rich-text></view>
+              </navigator>
+              <view class="weui-media-box__info">
+                <view class="weui-media-box__info__meta">{{ favorite.created_at}}我赞了 TA 的评论</view>
+              </view>
+            </view>
+          </view>
+        </repeat>
+        </view>
+      </van-tab>
+    </van-tabs>
+    <view class="weui-loadmore weui-loadmore_line" wx:if="{{ noMoreData }}">
+      <view class="weui-loadmore__tips weui-loadmore__tips_in-line">我是有底线的</view>
     </view>
-  </view>
   </view>
 </template>
 <script>
   import wepy from 'wepy'
+  import api from '@/utils/api'
+  import Notify from '../../components/vant/notify/notify'
 
   export default class TopicFavorite extends wepy.component {
     data = {
-      // 话题数据
-      repliesData: null,
-      // 有没有更多数据
-      noMoreData: false,
-      // 是否在加载中
-      isLoading: false,
-      syncData:{},
-      reply_count:0
+      favoriteDate:null,
+      favoriteReplyData:[],
+      favoriteTopicData:[],
+      page:1,
+      noMoreData:true,
+      isLoading:false,
+      syncData:{}
     }
     props = {
       // 父页面传入，请求参数
-      // syncreplyData: {
+      syncUrl: {
+        type: String,
+        default: 'topics'
+      },
+      // //父页面传入，请求url
+      // syncfavorite: {
       //   type: Object,
       //   default: {}
       // },
-      // 父页面传入，请求url
-      // syncUrl: {
-      //   type: String,
-      //   default: 'topics'
-      // },
+    }
+    async getFavorite(reset=false) {
+      // if (!this.syncData.page) {
+      //   this.syncData.page = 1
+      // }
+      try {
+        let favoriteResponse = await api.authRequest({
+          method: 'POST',
+          url: this.syncUrl,
+          // data: this.syncData
+        })
+        let favorite = favoriteResponse.data
+
+        // 格式化 updated_at
+        // topic.updated_at_diff = util.diffForHumans(topic.updated_at)
+        this.favoriteDate = favorite
+        this.favoriteTopicData = favorite.filter((favorite) => favorite.type==='topic')
+        this.favoriteReplyData = favorite.filter((favorite) => favorite.type==='reply')
+      // 如果传入参数 reset 为true，则覆盖 topics
+        // this.favoriteData = reset? favorite:this.favoriteData.concat(favorite)
+
+        // let pagination = favoriteResponse.data.meta
+
+        // // 根据分页设置是否还有更多数据
+        // if (pagination.current_page === pagination.last_page) {
+        //   this.noMoreData = true
+        // }
+
+        this.$apply()
+      } catch (err) {
+        console.log(err)
+        Notify('服务器错误，请联系管理员');
+      }
+    }
+    // 加载更多
+    // async loadMore () {
+    //   // 如果没有更多数据，或者正在加载，直接返回
+    //   if (this.noMoreData || this.isLoading) {
+    //     return
+    //   }
+    //   // 开始请求之前设置 isLoading 为true
+    //   this.isLoading = true
+    //   this.syncData.page = this.syncData.page + 1
+    //   //await this.getReplies()
+    //   await this.getFavorite()
+    //   // 开始结束后设置 isLoading 为 false
+    //   this.isLoading = false
+    //   this.$apply()
+    // }
+
+    // 重新加载
+    async reload() {
+      // this.syncData.page = 1
+      // this.noMoreData = false
+      await this.getFavorite(true)
+      this.$apply()
+      console.log(this.favoriteData)
     }
   }
 </script>

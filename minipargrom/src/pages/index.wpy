@@ -164,9 +164,8 @@ image { width: 100%; height: 100%;}
     mixins = [unreadCount]
     onPageScroll(event) {
       // console.log(event)
-      this.setData({
-        scrollTop: event.scrollTop
-      });
+      this.scrollTop=event.scrollTop
+      this.$apply()
     }
 
     async getCategory(){

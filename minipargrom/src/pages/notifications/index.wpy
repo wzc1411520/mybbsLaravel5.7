@@ -74,26 +74,76 @@ image{
     <view class="page__bd">
       <view class="weui-panel weui-panel_access">
         <view class="weui-panel__bd">
-          <repeat for="{{ notifications }}" wx:key="id" index="index" item="notification">
-            <view class="weui-media-box" hover-class="weui-cell_active">
-              <navigator class="notificationer-avatar" url="/pages/users/show?id={{ notification.data.user_id }}">
-                <image  src="{{ notification.data.user_avatar }}" />
-              </navigator>
-              <view class="box__bd">
 
-                <navigator class="weui-media-box__title" url="/pages/topics/show?id={{ notification.data.topic_id }}">
-                  <view class='user_name'>{{ notification.data.user_name }}</view>
-                  评论了
-                  <view class='topic_title'>{{ notification.data.topic_title }}</view>
-                </navigator>
+          <van-tabs animated swipeable color="#00b5ad">
+            <van-tab title="评论" info='1'>
+              <repeat for="{{ notifications }}" wx:key="id" index="index" item="notification">
+                <view class="weui-media-box" hover-class="weui-cell_active">
+                  <navigator class="notificationer-avatar" url="/pages/users/show?id={{ notification.data.user_id }}">
+                    <image  src="{{ notification.data.user_avatar }}" />
+                  </navigator>
+                  <view class="box__bd">
 
-                <view class="weui-media-box__desc"><rich-text nodes="{{ notification.data.reply_content }}" bindtap="tap"></rich-text></view>
-                <view class="weui-media-box__info">
-                  <view class="weui-media-box__info__meta">{{ notification.created_at}}</view>
+                    <navigator class="weui-media-box__title" url="/pages/topics/show?id={{ notification.data.topic_id }}">
+                      <view class='user_name'>{{ notification.data.user_name }}</view>
+                      评论了
+                      <view class='topic_title'>{{ notification.data.topic_title }}</view>
+                    </navigator>
+
+                    <view class="weui-media-box__desc"><rich-text nodes="{{ notification.data.reply_content }}" bindtap="tap"></rich-text></view>
+                    <view class="weui-media-box__info">
+                      <view class="weui-media-box__info__meta">{{ notification.created_at}}</view>
+                    </view>
+                  </view>
                 </view>
-              </view>
-            </view>
-          </repeat>
+              </repeat>
+            </van-tab>
+            <van-tab title="被赞的话题">
+              <repeat for="{{ notifications }}" wx:key="id" index="index" item="notification">
+                <view class="weui-media-box" hover-class="weui-cell_active">
+                  <navigator class="notificationer-avatar" url="/pages/users/show?id={{ notification.data.user_id }}">
+                    <image  src="{{ notification.data.user_avatar }}" />
+                  </navigator>
+                  <view class="box__bd">
+
+                    <navigator class="weui-media-box__title" url="/pages/topics/show?id={{ notification.data.topic_id }}">
+                      <view class='user_name'>{{ notification.data.user_name }}</view>
+                      评论了
+                      <view class='topic_title'>{{ notification.data.topic_title }}</view>
+                    </navigator>
+
+                    <view class="weui-media-box__desc"><rich-text nodes="{{ notification.data.reply_content }}" bindtap="tap"></rich-text></view>
+                    <view class="weui-media-box__info">
+                      <view class="weui-media-box__info__meta">{{ notification.created_at}}</view>
+                    </view>
+                  </view>
+                </view>
+              </repeat>
+            </van-tab>
+            <van-tab title="被赞的评论">
+              <repeat for="{{ notifications }}" wx:key="id" index="index" item="notification">
+                <view class="weui-media-box" hover-class="weui-cell_active">
+                  <navigator class="notificationer-avatar" url="/pages/users/show?id={{ notification.data.user_id }}">
+                    <image  src="{{ notification.data.user_avatar }}" />
+                  </navigator>
+                  <view class="box__bd">
+
+                    <navigator class="weui-media-box__title" url="/pages/topics/show?id={{ notification.data.topic_id }}">
+                      <view class='user_name'>{{ notification.data.user_name }}</view>
+                      评论了
+                      <view class='topic_title'>{{ notification.data.topic_title }}</view>
+                    </navigator>
+
+                    <view class="weui-media-box__desc"><rich-text nodes="{{ notification.data.reply_content }}" bindtap="tap"></rich-text></view>
+                    <view class="weui-media-box__info">
+                      <view class="weui-media-box__info__meta">{{ notification.created_at}}</view>
+                    </view>
+                  </view>
+                </view>
+              </repeat>
+            </van-tab>
+          </van-tabs>
+
           <view class="weui-loadmore weui-loadmore_line" wx:if="{{ noMoreData }}">
             <view class="weui-loadmore__tips weui-loadmore__tips_in-line">没有更多数据</view>
           </view>

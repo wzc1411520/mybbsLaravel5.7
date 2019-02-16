@@ -127,7 +127,6 @@ $api->version('v1', [
 
 
             });
-
             //访客访问的数据
             // 游客可以访问的接口
             $api->get('categories', 'CategoriesController@index')

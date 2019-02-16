@@ -1,45 +1,13 @@
-<style lang="less">
-.weui-loadmore_line {
-  border-top:1px solid #E5E5E5;
-  margin-top:2.4em;
-}
-.weui-loadmore {
-  width:65%;
-  margin:1.5em auto;
-  line-height:1.6em;
-  font-size:14px;
-  text-align:center;
-}
-.weui-loadmore__tips_in-line {
-  position:relative;
-  top:-0.9em;
-  padding:0 0.55em;
-  background-color:#FFFFFF;
-  color:#999999;
-}
-.weui-loadmore__tips {
-  display:inline-block;
-  vertical-align:middle;
-}
-</style>
 <template>
   <view class="page">
     <van-notify id="van-notify" />
     <view class="page__bd">
-      <repeat for="{{ favoriteData }}" wx:key="id" index="index" item="favorite">
-        <topic wx:if="{{favorite.type=='topic'?true:false}}" />
-        <reply wx:if="{{favorite.type=='reply'?true:false}}" />
-      </repeat>
-    </view>
-    <view class="weui-loadmore weui-loadmore_line" wx:if="{{ noMoreData }}">
-      <view class="weui-loadmore__tips weui-loadmore__tips_in-line">我是有底线的</view>
+      <topic :syncUrl.sync='requestUrl' />
     </view>
   </view>
 </template>
 <script>
   import wepy from 'wepy'
-  import api from '@/utils/api'
-  import Notify from '../../components/vant/notify/notify'
   import TopicCell from '../../components/favorites/topic'
   import ReplyCell from '../../components/favorites/reply'
 
@@ -47,82 +15,32 @@
   export default class FavoriteIndex extends wepy.page {
     onLoad(options) {
       this.userId = options.user_id
+      this.requestUrl = 'users/' + options.user_id + '/favorite'
       this.$apply()
-      this.getFavorite(options.user_id,true)
+
+      this.$invoke('topic', 'reload')
     }
     config = {
       navigationBarTitleText: '我的点赞',
-      enablePullDownRefresh: true,
-      onReachBottomDistance:300
     }
     data = {
       userId:'',
       favoriteData: [],
-      page:1,
-      noMoreData:false,
-      isLoading:false
+      requestUrl:'',
     }
     components = {
       topic: TopicCell,
       reply:ReplyCell
     }
-
-    async getFavorite(userId,reset=false) {
-      try {
-        let favoriteResponse = await api.authRequest({
-          url: 'users/' + userId + '/favorite',
-          method: 'POST',
-          data: {
-            page: this.page,
-            // include: 'topic',
-          }
-        })
-        console.log(favoriteResponse)
-        let favorite = favoriteResponse.data.data
-
-        // 格式化 updated_at
-        // topic.updated_at_diff = util.diffForHumans(topic.updated_at)
-
-        this.favoriteData = favorite
-      // 如果传入参数 reset 为true，则覆盖 topics
-        this.favoriteData = reset? favorite:this.favoriteData.concat(favorite)
-
-        let pagination = favoriteResponse.data.meta
-
-        // 根据分页设置是否还有更多数据
-        if (pagination.current_page === pagination.last_page) {
-          this.noMoreData = true
-        }
-
-        this.$apply()
-      } catch (err) {
-        console.log(err)
-        Notify('服务器错误，请联系管理员');
-      }
-    }
     // 下拉刷新
     async onPullDownRefresh() {
       // 调用组件 reload 方法
-      this.noMoreData = false
-      this.page = 1
-      await this.getReplies(this.userId,true)
-      this.$apply()
+       this.$invoke('topic', 'reload')
       wepy.stopPullDownRefresh()
     }
-    // 上拉加载更多
-    async onReachBottom () {
-      if (this.noMoreData || this.isLoading) {
-        return
-      }
-      // 开始请求之前设置 isLoading 为true
-      this.isLoading = true
-      this.page = this.page + 1
-      //await this.getReplies()
-      await this.getFavorite(this.userId)
-      // 开始结束后设置 isLoading 为 false
-      this.isLoading = false
-      this.$apply()
-
-    }
+    // // 上拉加载更多
+    // async onReachBottom () {
+    //   this.$invoke('topic', 'loadMore')
+    // }
   }
 </script>

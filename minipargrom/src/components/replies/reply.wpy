@@ -163,7 +163,7 @@
           }
           this.reply_count = pagination.total
           this.$apply()
-          console.log(this.repliesData)
+          // console.log(this.repliesData)
         }
 
         return replicsResponse

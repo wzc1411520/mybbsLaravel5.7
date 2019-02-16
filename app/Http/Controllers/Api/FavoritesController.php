@@ -21,7 +21,7 @@ class FavoritesController extends Controller
                 $query->whereFavoritedType('App\Models\Reply');
             }
 
-        })->latest()->with('favorited')->paginate();
+        })->latest()->with('favorited')->limit(30)->get();
 //        return $favorites;
         return FavoriteIndexResource::collection($favorites);
     }
