@@ -12,9 +12,16 @@
 */
 
 Route::get('test', function () {
-    $favorite = new \App\Models\Favorite();
-    $topic = $favorite->topic;
-    dd($topic);
+
+    $topic = new  \App\Models\Topic();
+    $user = new \App\Models\User();
+//    $topic->find(1);
+
+//    $favo = $topic->storeTopicFavorite();
+    event(new \App\Events\TopicFavoriteEvents($topic->find(57),$user->find(1)));
+//    $favorite = new \App\Models\Favorite();
+//    $topic = $favorite->topic;
+//    dd($favo);
 });
 Route::get('/', 'TopicsController@index')->name('root');
 

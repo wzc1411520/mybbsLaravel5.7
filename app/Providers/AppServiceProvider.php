@@ -23,12 +23,6 @@ class AppServiceProvider extends ServiceProvider
         if (class_exists(Config::class)) {
             Config::load();
         }
-        //观察者监听
-		\App\Models\User::observe(\App\Observers\UserObserver::class);
-		Reply::observe(\App\Observers\ReplyObserver::class);
-		Topic::observe(\App\Observers\TopicObserver::class);
-        \App\Models\Link::observe(\App\Observers\LinkObserver::class);
-
         \Carbon\Carbon::setLocale('zh');
 
         //共享数据

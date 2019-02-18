@@ -1,50 +1,340 @@
+<style lang="less">
+page{
+ font-size: 16px;
+}
+.topic{
+  display: flex;
+  justify-content:flex-start;
+  align-items: flex-start;     /* 垂直居中 */
+  width: 100%;
+  height:auto;
+  padding:10px 0;
+  border-bottom: 1px solid #f1f1f1;
+  position: relative;
+}
+.user_avatar{
+  width:55px;
+  height:55px;
+  margin:5px;
+  border:1px solid #f1f1f1;
+  padding:5px;
+  border-radius:5px;
+}
+.reply-cout{
+  display: flex;
+  margin-right: 5px;
+  position: absolute;
+  right: 0px;
+}
+.topic-box{
+  display: flex;
+  flex-direction: column;
+  // align-items: flex-start;
+  width: calc(100% - 115px);
+  word-wrap:break-word;
+  margin-top:10px;
+}
+image { width: 100%; height: 100%;}
+.topic-box_top{
+
+
+  .topic-box__title{
+
+  }
+}
+.topic-info{
+  display:flex;
+  flex-direction:row;
+  font-size:13px;
+  color:#bfbfbf;
+  flex-wrap:wrap;
+  position:relative;
+  bottom:-5px;
+  .box__info__meta{
+
+  }
+}
+.weui-loadmore_line {
+  border-top:1px solid #E5E5E5;
+  margin-top:2.4em;
+}
+.weui-loadmore {
+  width:65%;
+  margin:1.5em auto;
+  line-height:1.6em;
+  font-size:14px;
+  text-align:center;
+}
+.weui-loadmore__tips_in-line {
+  position:relative;
+  top:-0.9em;
+  padding:0 0.55em;
+  background-color:#FFFFFF;
+  color:#999999;
+}
+.weui-loadmore__tips {
+  display:inline-block;
+  vertical-align:middle;
+}
+.create-reply {
+  width: 30px;
+  height: 30px;
+  position: fixed;
+  bottom: 45px;
+  right: 10px;
+  z-index: 999;
+}
+
+
+</style>
 <template>
-  <view class="page">
-    <view class="page__bd">
-      <topiclist :syncData.sync="requestData" :syncUrl.sync="requestUrl"></topiclist>
-    </view>
-  </view>
+<view>
+  <van-notify id="van-notify" />
+  <van-tabs swipeable sticky scroll-top="{{ scrollTop }}" active="{{ active }}" color="#00b5ad" bind:change="onChange">
+    <van-tab title="最新发布" >
+      <repeat for="{{ newTopic.data}}" key="id" index="index" item="topic">
+        <navigator url="/pages/topics/show?id={{ topic.id }}" class="media-box media-box_appmsg" hover-class="cell_active">
+        <view class='topic'>
+          <view class="user_avatar">
+            <image class="media-box__thumb" src="{{topic.user.avatar}}" />
+          </view>
+          <view class="topic-box">
+            <view class="topic-box_top">
+              {{topic.title}}
+            </view>
+            <view class="topic-info">
+              <view class="box__info__meta">{{topic.category.name}} • </view>
+              <view class="box__info__meta">{{topic.user.name}} • </view>
+              <view class="box__info__meta">{{topic.updated_at}}</view>
+            </view>
+          </view>
+          <view class="reply-cout">
+            <van-tag plain round mark color="#b8b8b8"><van-icon name="chat-o"/>{{topic.reply_count}}</van-tag>
+          </view>
+        </view>
+        </navigator>
+      </repeat>
+      <view class="weui-loadmore weui-loadmore_line" wx:if="{{ newTopic.noMoreData }}">
+        <view class="weui-loadmore__tips weui-loadmore__tips_in-line">没有更多数据</view>
+      </view>
+    </van-tab>
+    <van-tab title="最新回复" >
+      <repeat for="{{ replyTopic.data}}" key="id" index="index" item="topic">
+        <navigator url="/pages/topics/show?id={{ topic.id }}" class="media-box media-box_appmsg" hover-class="cell_active">
+          <view class='topic'>
+            <view class="user_avatar">
+              <image class="media-box__thumb" src="{{topic.user.avatar}}" />
+            </view>
+            <view class="topic-box">
+              <view class="topic-box_top">
+                {{topic.title}}
+              </view>
+              <view class="topic-info">
+                <view class="box__info__meta">{{topic.category.name}} • </view>
+                <view class="box__info__meta">{{topic.user.name}} • </view>
+                <view class="box__info__meta">{{topic.updated_at}}</view>
+              </view>
+            </view>
+            <view class="reply-cout">
+              <van-tag plain round mark color="#b8b8b8"><van-icon name="chat-o"/>{{topic.reply_count}}</van-tag>
+            </view>
+          </view>
+        </navigator>
+      </repeat>
+      <view class="weui-loadmore weui-loadmore_line" wx:if="{{ replyTopic.noMoreData }}">
+        <view class="weui-loadmore__tips weui-loadmore__tips_in-line">没有更多数据</view>
+      </view>
+    </van-tab>
+  </van-tabs>
+   <!-- 回复按钮 -->
+  <!-- <navigator url="/pages/topics/create" wx:if="{{ isLogin }}">
+    <image src="/images/reply.png" class="create-reply" />
+  </navigator> -->
+  <!-- //置顶 -->
+  <!-- <totop :syncToTop.sync="isToTop"/> -->
+  <totop/>
+</view>
 </template>
+
 <script>
   import wepy from 'wepy'
-  import topicList from '../../components/topics/topicList'
+  import api from '@/utils/api'
+  import Notify from '@/components/vant/notify/notify'
+  import Topic from '@/components/topics/topic'
+  import toTop from '@/components/tools/toTop'
+  import Event from '@/utils/event.js'
 
-  export default class UserIndex extends wepy.page {
+  export default class UserIndexs extends wepy.page {
     config = {
       navigationBarTitleText: 'Ta 发布的话题',
       enablePullDownRefresh: true,
-      onReachBottomDistance:300
+      onReachBottomDistance:500
     }
+    // 可用于页面模板绑定的数据
     data = {
-      requestData: {},
-      requestUrl: null
+      // isToTop:false,
+      active: 0,
+      scrollTop: 0,
+      replyTopic:{
+        data:[],
+        page:1,
+        noMoreData:false,
+        scrollTop:0
+      },
+      newTopic:{
+        data:[],
+        page:1,
+        noMoreData:false,
+        scrollTop:0
+      },
+      noMoreData:false,
+
+      isLogin: false,
+
     }
     components = {
-      topiclist: topicList
+        topic: Topic,
+        totop:toTop
     }
-    onLoad(options) {
-
-      this.requestUrl = 'users/' + options.user_id + '/topics'
-      // 组件数据改变，也需要调用 this.$apply()
+    onPageScroll(event) {
+      // this.$invoke('totop','scroll')
+      // console.log(event.scrollTop)
+      if(event.scrollTop>=100){
+        this.$invoke('totop','scroll')
+        // this.isToTop = true
+      }
+      // }else{
+      //   this.isToTop = false
+      // }
       this.$apply()
-      // 调用组件 reload 方法
-      this.$invoke('topiclist', 'reload')
-    }
-    onShow() {
-      this.$parent.checkRefreshPages(this.getCurrentPages().pop().route, () => {
-        this.$invoke('topiclist', 'reload')
+      let Top = 0
+      Top= this.active==1?'replyTopic.scrollTop':'newTopic.scrollTop'
+      // console.log(Top)
+      this.setData({
+        [Top]: event.scrollTop,
+        scrollTop:event.scrollTop
       })
     }
-    // 下拉刷新
+     // 获取话题数据
+    async getTopics(reset = false) {
+      let order = this.active?'recent':''
+      let page = 1
+      if(this.active){
+        page = this.replyTopic.page
+      }else{
+        page = this.newTopic.page
+      }
+      try {
+        // 请求话题列表接口
+        let topicsResponse = await api.request({
+          url: 'topics',
+          data: {
+            page: page,
+            include: 'user,category',
+            order:order
+          }
+        })
+        // console.log(topicsResponse)
+        let topics = topicsResponse.data.data
+
+        if(!this.active){
+          this.newTopic.data =reset ? topics : this.newTopic.data.concat(topics)
+        }else{
+          this.replyTopic.data =reset ? topics : this.replyTopic.data.concat(topics)
+        }
+
+        let pagination = topicsResponse.data.meta
+        // 根据分页设置是否还有更多数据
+
+        if (pagination.current_page === pagination.last_page) {
+          let noMoreData = false
+          if(this.active){
+            this.replyTopic.noMoreData=true
+          }else{
+            this.newTopic.noMoreData=true
+          }
+        }
+        this.$apply()
+      } catch (err) {
+        console.log(err)
+         Notify('服务器错误，请联系管理员');
+      }
+    }
+    async onLoad() {
+      this.getTopics()
+    }
+    onShow(){
+      this.$parent.checkRefreshPages(this.getCurrentPages().pop().route, () => {
+        // this.$invoke('topiclist', 'reload')
+
+        if(this.active){
+          this.replyTopic.noMoreData=false
+          this.replyTopic.page=1
+        }else{
+          this.newTopic.noMoreData=false
+          this.newTopic.page=1
+        }
+        this.getTopics(true)
+        this.$apply()
+      })
+      let that = this
+      Event.EventBus.one('successCreat', function(msg) {
+        console.log('更新'+msg);
+        that.getTopics(msg)
+      });
+      this.isLogin = this.$parent.checkLogin()?true:false
+      this.$apply()
+    }
+
     async onPullDownRefresh() {
-      // 调用组件 reload 方法
-      await this.$invoke('topiclist', 'reload')
+      // this.isToTop = false
+      if(this.active){
+        this.replyTopic.scrollTop = 0
+        this.replyTopic.noMoreData=false
+        this.replyTopic.page =1
+      }else{
+        this.newTopic.scrollTop = 0
+        this.newTopic.noMoreData=false
+        this.newTopic.page=1
+      }
+      this.$apply()
+      await this.getTopics(true)
       wepy.stopPullDownRefresh()
     }
-    // 上拉加载更多
-    onReachBottom () {
-      // 调用组件 loadMore 方法
-      this.$invoke('topiclist', 'loadMore')
+    async onReachBottom () {
+      if(this.active){
+          let noMoreData =this.replyTopic.noMoreData
+          this.replyTopic.page==this.replyTopic.page+1
+        }else{
+          let noMoreData =this.newTopic.noMoreData
+          this.newTopic.page=this.newTopic.page+1
+        }
+      // 如果没有更多内容，直接返回
+      if (this.noMoreData) {
+        return
+      }
+      this.page = this.page + 1
+      await this.getTopics()
+      this.$apply()
+    }
+
+    async onChange(event) {
+      let index = `${event.detail.index}`
+      let topic =index==1?this.replyTopic.data:this.newTopic.data
+      this.active = index
+      wepy.pageScrollTo({
+        scrollTop: index==1?this.replyTopic.scrollTop:this.newTopic.scrollTop,
+        duration: 0
+      })
+      this.$apply()
+
+      this.$invoke('totop','isShow',index==1?this.replyTopic.scrollTop:this.newTopic.scrollTop)
+
+      // console.log(index,index==1?this.replyTopic.scrollTop:this.newTopic.scrollTop)
+      if(!topic.length){
+        // console.log(topic.length)
+        await this.getTopics()
+      }
     }
   }
 </script>

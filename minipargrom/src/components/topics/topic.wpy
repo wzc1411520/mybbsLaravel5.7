@@ -26,13 +26,13 @@
   word-wrap:break-word
 }
 image { width: 100%; height: 100%;}
-.topic-box_top{
+// .topic-box_top{
 
 
-  .topic-box__title{
+//   .topic-box__title{
 
-  }
-}
+//   }
+// }
 .topic-info{
   display:flex;
   flex-direction:row;

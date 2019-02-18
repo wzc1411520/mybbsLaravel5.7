@@ -2,23 +2,75 @@
   <view class="page">
     <van-notify id="van-notify" />
     <view class="page__bd">
-      <topic :syncUrl.sync='requestUrl' />
+      <!-- <topic :syncUrl.sync='requestUrl' /> -->
+       <van-tabs animated swipeable color="#00b5ad " bind:change="onChange" sticky scroll-top="{{ scrollTop }}">
+        <van-tab title="话题">
+          <view>
+            <repeat for="{{ favoriteTopicData }}" wx:key="id" index="index" item="favorite">
+            <!-- 话题 -->
+              <view class="weui-media-box" hover-class="weui-cell_active">
+                <navigator class="notificationer-avatar" url="/pages/users/show?id={{ favorite.topic_user_id }}">
+                  <image  src="{{ favorite.topic_user_avatar }}" />
+                </navigator>
+                <view class="box__bd">
+                  <navigator class="weui-media-box__title" url="/pages/topics/show?id={{ favorite.topic_id }}">
+                    <view class='topic_title'>{{ favorite.topic_title }}</view>
+                  </navigator>
+                  <view class="weui-media-box__info">
+                    <view class="weui-media-box__info__meta">{{ favorite.created_at}}我赞了 TA 的话题</view>
+                  </view>
+                </view>
+              </view>
+            </repeat>
+            <view class="weui-loadmore weui-loadmore_line" wx:if="{{ noMoreData }}">
+              <view class="weui-loadmore__tips weui-loadmore__tips_in-line">我是有底线的</view>
+            </view>
+          </view>
+        </van-tab>
+        <van-tab title="评论">
+          <view>
+            <repeat for="{{ favoriteReplyData }}" wx:key="id" index="index" item="favorite">
+            <!-- 话题 -->
+            <view class="weui-media-box" hover-class="weui-cell_active">
+              <navigator class="notificationer-avatar" url="/pages/users/show?id={{ favorite.reply_user_id}}">
+                <image  src="{{ favorite.reply_user_avatar }}" />
+              </navigator>
+              <view class="box__bd">
+                <navigator class="weui-media-box__title" url="/pages/topics/show?id={{ favorite.topic_id }}">
+                  <view class='topic_title'>{{ favorite.topic_title }}</view>
+                  <view class="weui-media-box__desc"><rich-text nodes="评论:{{ favorite.reply_content }}"></rich-text></view>
+                </navigator>
+                <view class="weui-media-box__info">
+                  <view class="weui-media-box__info__meta">{{ favorite.created_at}}我赞了 TA 的评论</view>
+                </view>
+              </view>
+            </view>
+          </repeat>
+          </view>
+          <view class="weui-loadmore weui-loadmore_line" wx:if="{{ noMoreData }}">
+            <view class="weui-loadmore__tips weui-loadmore__tips_in-line">我是有底线的</view>
+          </view>
+        </van-tab>
+      </van-tabs>
     </view>
   </view>
 </template>
 <script>
   import wepy from 'wepy'
+  import api from '@/utils/api'
   import TopicCell from '../../components/favorites/topic'
   import ReplyCell from '../../components/favorites/reply'
+  import Notify from '../../components/vant/notify/notify'
 
 
   export default class FavoriteIndex extends wepy.page {
     onLoad(options) {
       this.userId = options.user_id
       this.requestUrl = 'users/' + options.user_id + '/favorite'
+      this.getFavorite()
       this.$apply()
 
-      this.$invoke('topic', 'reload')
+      // this.$invoke('topic', 'reload')
     }
     config = {
       navigationBarTitleText: '我的点赞',
@@ -27,16 +79,73 @@
       userId:'',
       favoriteData: [],
       requestUrl:'',
+      favoriteDate:null,
+      favoriteReplyData:[],
+      favoriteTopicData:[],
+      page:1,
+      noMoreData:true,
+      scrollTop:0,
     }
     components = {
       topic: TopicCell,
       reply:ReplyCell
     }
+     async getFavorite(reset=false) {
+      // if (!this.syncData.page) {
+      //   this.syncData.page = 1
+      // }
+      try {
+        let favoriteResponse = await api.authRequest({
+          method: 'POST',
+          url: this.requestUrl,
+          // data: this.syncData
+        })
+        let favorite = favoriteResponse.data
+
+        // 格式化 updated_at
+        // topic.updated_at_diff = util.diffForHumans(topic.updated_at)
+        this.favoriteDate = favorite
+        this.favoriteTopicData = favorite.filter((favorite) => favorite.type==='topic')
+        this.favoriteReplyData = favorite.filter((favorite) => favorite.type==='reply')
+      // 如果传入参数 reset 为true，则覆盖 topics
+        // this.favoriteData = reset? favorite:this.favoriteData.concat(favorite)
+
+        // let pagination = favoriteResponse.data.meta
+
+        // // 根据分页设置是否还有更多数据
+        // if (pagination.current_page === pagination.last_page) {
+        //   this.noMoreData = true
+        // }
+
+        this.$apply()
+      } catch (err) {
+        console.log(err)
+        Notify('服务器错误，请联系管理员');
+      }
+    }
     // 下拉刷新
     async onPullDownRefresh() {
       // 调用组件 reload 方法
-       this.$invoke('topic', 'reload')
+      //  this.$invoke('topic', 'reload')
+      this.reload()
       wepy.stopPullDownRefresh()
+    }
+    onChange(event) {
+      wepy.pageScrollTo({
+        scrollTop: 0,
+        duration: 0
+      })
+    }
+     async reload() {
+      // this.syncData.page = 1
+      // this.noMoreData = false
+      await this.getFavorite(true)
+      this.$apply()
+      console.log(this.favoriteData)
+    }
+    onPageScroll(event) {
+      this.scrollTop=event.scrollTop
+      this.$apply()
     }
     // // 上拉加载更多
     // async onReachBottom () {

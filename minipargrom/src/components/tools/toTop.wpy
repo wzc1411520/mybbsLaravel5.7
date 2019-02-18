@@ -1,0 +1,52 @@
+<style lang="less">
+.to-top{
+  width: 30px;
+  height: 30px;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  z-index: 999;
+}
+</style>
+
+<template>
+  <view class="to-top">
+    <image wx:if='{{syncToTop}}' src="/images/to-top.png"  @tap='toTop'/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  // import util from '@/utils/util'
+
+  export default class ToTop extends wepy.component {
+    data={
+      syncToTop:false
+    }
+    // props = {
+    //   syncToTop:Boolean,
+    //   default:false,
+    //   twoWay: true
+    // }
+    methods= {
+       toTop(){
+          wepy.pageScrollTo({
+            scrollTop: 0,
+            // duration: 0
+          })
+          this.syncToTop = false
+          this.$apply()
+       }
+    }
+    scroll(){
+      this.syncToTop=true
+      this.$apply()
+      console.log(this.syncToTop)
+    }
+    isShow(args){
+        console.log(args)
+        this.syncToTop = args>10?true:false
+        this.$apply()
+    }
+  }
+</script>

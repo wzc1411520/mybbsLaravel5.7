@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\FavoriteIndexResource;
+use App\Http\Resources\ReplyResource;
+use App\Http\Resources\TopicResource;
 use App\Models\Reply;
 use App\Models\Topic;
 use App\Models\User;
@@ -32,7 +34,10 @@ class FavoritesController extends Controller
         //修改点赞数
         $attributes = ['user_id' => $this->user()->id];
         if( ! $reply->favorites()->where($attributes)->exists()){
-            return $reply->favorites()->create($attributes);
+            $reply->favorites()->create($attributes);
+            //调用信息通知事件
+            event(new \App\Events\ReplyFavoriteEvents($reply,$this->user()));
+            return new ReplyResource($reply);
         }else{
             return $this->response->noContent();
         }
@@ -43,7 +48,10 @@ class FavoritesController extends Controller
     {
         $attributes = ['user_id' => $this->user()->id];
         if( ! $topic->favorites()->where($attributes)->exists()){
-            return $topic->favorites()->create($attributes);
+            $topic->favorites()->create($attributes);
+            //调用信息通知事件
+            event(new \App\Events\TopicFavoriteEvents($topic,$this->user()));
+            return new TopicResource($topic);
         }else{
             return $this->response->noContent();
         }

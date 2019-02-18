@@ -22,19 +22,19 @@ export default class unreadCount extends wepy.mixin {
   // 设置未读消息数
   updateUnreadCount() {
     // 从全局获取未读消息数
-    this.unreadCount = this.$parent.globalData.unreadCount
+    this.unreadCount = this.$parent.globalData.Count.unread_count+this.$parent.globalData.Count.unreadTopicFavorite_count+this.$parent.globalData.Count.unreadReplyFavorite_count
     this.$apply()
 
     if (this.unreadCount) {
       // 设置 badge
       wepy.setTabBarBadge({
-        index: 1,
+        index: 2,
         text: this.unreadCount.toString()
       })
     } else {
       // 移除 badge
       wepy.removeTabBarBadge({
-        index: 1
+        index: 2
       })
     }
   }

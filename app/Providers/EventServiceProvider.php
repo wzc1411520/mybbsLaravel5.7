@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use App\Http\Requests\Api\SocialAuthorizationRequest;
+use App\Listeners\FavoriteEventSubscriber;
+use App\Models\Reply;
+use App\Models\Topic;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -30,12 +33,20 @@ class EventServiceProvider extends ServiceProvider
             'SocialiteProviders\Weixin\WeixinExtendSocialite@handle',
 
             //添加qq登录
-            'SocialiteProviders\QQ\QqExtendSocialite@handle',
+//            'SocialiteProviders\QQ\QqExtendSocialite@handle',
 
         ],
         'eloquent.created: Illuminate\Notifications\DatabaseNotification' => [
             'App\Listeners\PushNotification',
         ],
+
+//        'App\Events\Topic' => [
+//            'App\Listeners\Favorite',
+//        ],
+    ];
+
+    protected $subscribe = [
+        'App\Listeners\FavoriteEventListeners'
     ];
 
     /**
@@ -46,7 +57,11 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
+        //观察者监听
+        \App\Models\User::observe(\App\Observers\UserObserver::class);
+        Reply::observe(\App\Observers\ReplyObserver::class);
+        Topic::observe(\App\Observers\TopicObserver::class);
+        \App\Models\Link::observe(\App\Observers\LinkObserver::class);
 
-        //
     }
 }

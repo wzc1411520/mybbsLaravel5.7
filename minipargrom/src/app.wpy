@@ -28,12 +28,13 @@ export default class extends wepy.app {
       'pages/users/edit',
       'pages/users/show',
       'pages/auth/login',
+      'pages/topics/index',
       'pages/topics/show',
       'pages/topics/userIndex',
       'pages/topics/create',
       'pages/replies/userIndex',
       'pages/replies/create',
-      'pages/notifications/index',
+      'pages/notifications/indexs',
       'pages/favorites/favoriteIndex'
     ],
     window: {
@@ -48,7 +49,14 @@ export default class extends wepy.app {
         text: '首页',
         iconPath: 'images/index.png',
         selectedIconPath: 'images/index_selected.png'
-      }, {
+      },
+      {
+        pagePath: 'pages/topics/index',
+        text: 'Blog',
+        iconPath: 'images/blog.png',
+        selectedIconPath: 'images/blog_selected.png'
+      }
+      ,{
         pagePath: 'pages/users/me',
         text: '我的',
         iconPath: 'images/user.png',
@@ -80,7 +88,7 @@ export default class extends wepy.app {
   globalData = {
     userInfo: null,
     refreshPages: [],
-    unreadCount: 0
+    Count: {},
   }
   async onLaunch() {
 
@@ -107,7 +115,8 @@ export default class extends wepy.app {
 
     //  请求成功，赋值全局变量 unreadCount
     if (notificationResponse.statusCode === 200) {
-      this.globalData.unreadCount = notificationResponse.data.unread_count
+      this.globalData.Count = notificationResponse.data
+      console.log(this.globalData.Count)
     }
   }
 

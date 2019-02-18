@@ -97,11 +97,12 @@
           <van-icon name="arrow" />
         </view> -->
       </navigator>
-      <navigator class="weui-cell weui-cell_access" url="{{ userInfo ? '/pages/notifications/index' : '' }}">
+      <navigator class="weui-cell weui-cell_access" url="{{ userInfo ? '/pages/notifications/indexs' : '' }}">
         <van-cell is-link custom-class='weui-cell__bd'>
-          <view slot="title">
-            <view class="van-cell-text">我的消息</view>
-            <van-tag round type="danger" wx:if="{{ unreadCount }}">{{ unreadCount }}</van-tag>
+          <view slot="title" >
+            <view class="van-cell-text">
+              我的消息 <van-tag round type="danger" wx:if="{{ unreadCount }}">{{ unreadCount }}</van-tag>
+              </view>
           </view>
         </van-cell>
       </navigator>

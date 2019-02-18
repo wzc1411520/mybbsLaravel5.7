@@ -40,12 +40,6 @@ border-bottom:1px solid #e1e1e1 !important;
   color:#e2e2e2;
   padding-left:10px;
 }
-.btn{
-  position: fixed !important;
-  top: 10px;
-  right: 10px;
-  z-index:999;
-}
 </style>
 
 <template>
@@ -62,7 +56,10 @@ border-bottom:1px solid #e1e1e1 !important;
           border="{{ false }}"
           bind:change="handleTitleInput"
           input-class='title'
-        />
+          use-button-slot
+        >
+          <van-button slot="button" type="primary" size="small" custom-class='btn' @tap='submit'>发布</van-button>
+        </van-field>
         <van-field
           value="{{ addData.content }}"
           type ="textarea"
@@ -73,16 +70,19 @@ border-bottom:1px solid #e1e1e1 !important;
           input-class='content'
         />
         <van-cell
+          value="共{{contentCount}}字"
+        />
+        <van-cell
           value="{{ choosecattegory }}"
           title="分类"
           icon="label-o"
           bind:click="onChooseCategory"
         />
         <van-cell
-          value="{{ status }}"
+          value="{{ choosePermission }}"
           icon="friends-o"
           title="谁可以看"
-          bind:click="onChooseCategory"
+          bind:click="onChoosePermission"
         />
       </van-cell-group>
       <van-action-sheet
@@ -91,8 +91,15 @@ border-bottom:1px solid #e1e1e1 !important;
         bind:close="onClose"
         bind:select="onSelect"
       />
+
+      <van-action-sheet
+        show="{{ showPermission }}"
+        actions="{{ permission }}"
+        bind:close="onClose"
+        bind:select="onPermissionSelect"
+      />
       <!-- 正文输入字数统计 -->
-      <view class="weui-textarea-counter">{{contentCount}}/500</view>
+      <!-- <view class="weui-textarea-counter">{{contentCount}}/500</view> -->
       <view class="picture_content">
         <repeat for="{{ avatar }}" key="id" index="index" item="pic">
           <view class="picture" >
@@ -105,7 +112,6 @@ border-bottom:1px solid #e1e1e1 !important;
         </view>
       <!-- </view> -->
     </view>
-    <van-button type="primary" size="small" custom-class='btn' @tap='submit'>发布</van-button>
     <!-- </form> -->
   </view>
 </view>
@@ -129,7 +135,21 @@ border-bottom:1px solid #e1e1e1 !important;
       img:[],
       category:[],
       show: false,
-      choosecattegory:''
+      choosecattegory:'',
+      choosePermission:'',//1为公开  0为私密
+      showPermission:false,
+      permission:[
+        {
+          id:1,
+          name:'公开',
+          subname: '(所有人可见)',
+        },
+        {
+          id:0,
+          name:'私密',
+          subname: '(仅自己可见)',
+        }
+      ]
     }
     onLoad(options) {
       // 未登录跳转到登录页面
@@ -150,6 +170,7 @@ border-bottom:1px solid #e1e1e1 !important;
       if(wepy.getStorageSync('newTopic')){
         this.addData = wepy.getStorageSync('newTopic')
         this.choosecattegory = this.category[this.addData.category_id-1].name?this.category[this.addData.category_id-1].name:''
+        this.choosePermission = this.addData.isShow?'公开':'私密'
         this.avatar = this.addData.avatar
         this.contentCount = this.addData.content.length
       }
@@ -180,15 +201,27 @@ border-bottom:1px solid #e1e1e1 !important;
       },
       onClose() {
         this.show=false
+        this.showPermission=false
       },
       onChooseCategory(){
         this.show=true
+      },
+      onChoosePermission(){
+        this.showPermission=true
       },
 
       onSelect(event) {
         console.log(event.detail);
         this.choosecattegory = event.detail.name
         this.addData.category_id = event.detail.id
+        this.show=false
+        this.$apply()
+        wepy.setStorageSync('newTopic',this.addData)
+      },
+      onPermissionSelect(event) {
+        console.log(event.detail);
+        this.choosePermission = event.detail.name
+        this.addData.isShow = event.detail.id
         this.show=false
         this.$apply()
         wepy.setStorageSync('newTopic',this.addData)

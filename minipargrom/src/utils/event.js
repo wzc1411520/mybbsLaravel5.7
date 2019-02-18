@@ -25,6 +25,7 @@ EventBusClass.prototype = {
       if (!this.msgQueues.hasOwnProperty(msgName)) {
           return
       }
+      //console.log(this.msgQueues[msgName])
       if (typeof this.msgQueues[msgName] === 'function') {
           this.msgQueues[msgName](msg)
       } else {

@@ -15,6 +15,8 @@ class AddNotificationCountToUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->integer('notification_count')->unsigned()->default(0);
+            $table->integer('reply_notification_count')->unsigned()->default(0);
+            $table->integer('topic_notification_count')->unsigned()->default(0);
             $table->timestamp('last_actived_at')->nullable();
         });
     }
@@ -28,6 +30,9 @@ class AddNotificationCountToUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('last_actived_at');
+            $table->dropColumn('topic_notification_count');
+            $table->dropColumn('reply_notification_count');
+            $table->dropColumn('notification_count');
         });
     }
 }

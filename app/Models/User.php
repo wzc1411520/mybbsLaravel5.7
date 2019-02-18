@@ -26,14 +26,23 @@ class User extends Authenticatable  implements MustVerifyEmailContract,JWTSubjec
         if ($this->id == \Auth::id()) {
             return;
         }
+        if($instance->type == 'reply_favorite'){
+        $this->increment('reply_notification_count');
+        }else if($instance->type == 'topic_favorite'){
+        $this->increment('topic_notification_count');
+        }else{
         $this->increment('notification_count');
+        }
+
+
         $this->laravelNotify($instance);
     }
     public function markAsRead()
     {
         $this->notification_count = 0;
         $this->save();
-        $this->unreadNotifications->markAsRead();
+
+//        $this->unreadNotifications->markAsRead();
     }
     /**
      * The attributes that are mass assignable.

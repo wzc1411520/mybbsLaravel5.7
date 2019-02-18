@@ -1,0 +1,427 @@
+<style lang="less">
+page{
+ font-size: 16px;
+}
+.topic{
+  display: flex;
+  justify-content:flex-start;
+  align-items: flex-start;     /* 垂直居中 */
+  width: 100%;
+  height:auto;
+  padding:10px 0;
+  border-bottom: 1px solid #f1f1f1;
+  position: relative;
+}
+.user_avatar{
+  width:55px;
+  height:55px;
+  margin:5px;
+  border:1px solid #f1f1f1;
+  padding:5px;
+  border-radius:5px;
+}
+.reply-cout{
+  display: flex;
+  margin-right: 5px;
+  position: absolute;
+  right: 0px;
+}
+.topic-box{
+  display: flex;
+  flex-direction: column;
+  // align-items: flex-start;
+  width: calc(100% - 80px);
+  word-wrap:break-word;
+}
+.topic-info{
+  display:flex;
+  flex-direction:row;
+  font-size:13px;
+  color:#bfbfbf;
+  flex-wrap:wrap;
+  position:relative;
+  bottom:-5px;
+  .box__info__meta{
+
+  }
+}
+.weui-loadmore_line {
+  border-top:1px solid #E5E5E5;
+  margin-top:2.4em;
+}
+.weui-loadmore {
+  width:65%;
+  margin:1.5em auto 0em;
+  // line-height:1.6em;
+  font-size:14px;
+  text-align:center;
+}
+.weui-loadmore__tips_in-line {
+  position:relative;
+  top:-0.9em;
+  padding:0 0.55em;
+  background-color:#FFFFFF;
+  color:#999999;
+}
+.weui-loadmore__tips {
+  display:inline-block;
+  vertical-align:middle;
+}
+image{
+  width: 100%;
+  height: 100%;
+}
+.notificationer-avatar{
+  width:55px;
+  height:55px;
+  margin:5px;
+  border:1px solid #f1f1f1;
+  padding:5px;
+  border-radius:5px;
+}
+.weui-media-box{
+  display: flex;
+  align-items: flex-start;     /* 垂直居中 */
+  flex-direction: row;
+  border-bottom:1px solid #f0f0f0;
+  padding:5px 0;
+
+}
+.box__bd{
+  display: flex;
+  // align-items: center;
+  //align-items: flex-start;    /* 垂直居中 */
+  flex-direction: column;
+  width: calc(100% - 80px)
+}
+.user_name{
+  display:inline-block;
+  vertical-align:middle;
+  font-size:16px;
+  color:#7a7a7a;
+}
+.topic_title{
+  display:inline-block;
+  vertical-align:middle;
+  font-size:13px;
+  color:#7a7a7a;
+}
+.weui-media-box__desc{
+ font-size:14px;
+}
+.weui-media-box__info{
+  font-size:13px;
+  color:#7a7a7a;
+}
+.unread{
+  background-color:#f1f1f1;
+  box-shadow:1px 1px 2px #888888;
+  margin:5px;
+  width:calc(100% - 10px);
+}
+</style>
+<template>
+<view>
+  <van-notify id="van-notify" />
+  <van-tabs swipeable sticky scroll-top="{{ scrollTop }}" color="#00b5ad" bind:change="onChange">
+    <van-tab title="评论" info="{{unread_count}}">
+      <repeat for="{{ reply.data }}" wx:key="id" index="index" item="replty_item" bind:change="onChange">
+        <view  hover-class="weui-cell_active" class="{{replty_item.read_at==null?'unread weui-media-box':'weui-media-box'}}">
+          <navigator class="notificationer-avatar" url="/pages/users/show?id={{ replty_item.data.user_id }}">
+            <image  src="{{ replty_item.data.user_avatar }}" />
+          </navigator>
+          <view class="box__bd">
+            <navigator class="weui-media-box__title" url="/pages/topics/show?id={{ replty_item.data.topic_id }}">
+              <view class='user_name'>{{ replty_item.data.user_name }}</view>
+
+              <view class='topic_title'>评论:《{{ replty_item.data.topic_title }}》</view>
+            </navigator>
+
+            <view class="weui-media-box__desc"><rich-text nodes="{{ replty_item.data.reply_content }}" bindtap="tap"></rich-text></view>
+            <view class="weui-media-box__info">
+              <view class="weui-media-box__info__meta">{{ replty_item.created_at}}</view>
+            </view>
+          </view>
+        </view>
+      </repeat>
+      <view class="weui-loadmore weui-loadmore_line" wx:if="{{ reply.noMoreData }}">
+        <view class="weui-loadmore__tips weui-loadmore__tips_in-line">沒有未读信息</view>
+      </view>
+    </van-tab>
+    <van-tab title="被赞的话题" info="{{unreadTopicFavorite_count}}">
+      <repeat for="{{ topicFavorited.data}}" key="id" index="index" item="topic">
+        <view  hover-class="weui-cell_active" class="{{topicFavorited.read_at==null?'unread topic':'topic'}}">
+          <navigator url="/pages/users/show?id={{ topic.data.favorite_user_id }}" class="media-box media-box_appmsg" hover-class="cell_active">
+          <view class="user_avatar">
+            <image class="media-box__thumb" src="{{topic.data.favorite_user_avatar}}" />
+          </view>
+          </navigator>
+          <view class="topic-box">
+            <navigator url="/pages/users/show?id={{ topic.data.favorite_user_id }}" class="media-box media-box_appmsg" hover-class="cell_active">
+            <view class="user_name">
+              {{topic.data.favorite_user_name}}
+            </view>
+            </navigator>
+            <view class="weui-media-box__info">
+              <view class="weui-media-box__info__meta">在{{ topic.created_at}}赞了👍文章</view>
+            </view>
+            <navigator url="/pages/topics/show?id={{ topic.data.topic_id }}" class="media-box media-box_appmsg" hover-class="cell_active">
+            <view class="topic_title">
+              《{{topic.data.topic_title}}》
+            </view>
+            </navigator>
+          </view>
+        </view>
+      </repeat>
+      <view class="weui-loadmore weui-loadmore_line" wx:if="{{ topicFavorited.noMoreData }}">
+        <view class="weui-loadmore__tips weui-loadmore__tips_in-line">沒有未读信息</view>
+      </view>
+    </van-tab>
+    <van-tab title="被赞的评论" info="{{unreadReplyFavorite_count}}">
+      <repeat for="{{ replyFavorited.data}}" key="id" index="index" item="reply">
+        <view  hover-class="weui-cell_active" class="{{replyFavorited.read_at==null?'unread topic':'topic'}}">
+          <navigator url="/pages/users/show?id={{ reply.data.favorite_user_id }}" class="media-box media-box_appmsg" hover-class="cell_active">
+          <view class="user_avatar">
+            <image class="media-box__thumb" src="{{reply.data.favorite_user_avatar}}" />
+          </view>
+          </navigator>
+          <view class="topic-box">
+            <navigator url="/pages/users/show?id={{ reply.data.favorite_user_id }}" class="media-box media-box_appmsg" hover-class="cell_active">
+            <view class="user_name">
+              {{reply.data.favorite_user_name}}
+            </view>
+            </navigator>
+            <view class="weui-media-box__info">
+              <view class="weui-media-box__info__meta">在{{ reply.created_at}}赞了👍文章</view>
+            </view>
+            <navigator url="/pages/topics/show?id={{ reply.data.topic_id }}" class="media-box media-box_appmsg" hover-class="cell_active">
+            <view class="topic_title">
+              《{{reply.data.topic_title}}》下的你的评论
+            </view>
+            <view class="weui-media-box__desc">{{ reply.data.reply_content }}</view>
+            </navigator>
+          </view>
+        </view>
+      </repeat>
+      <view class="weui-loadmore weui-loadmore_line" wx:if="{{ replyFavorited.noMoreData }}">
+        <view class="weui-loadmore__tips weui-loadmore__tips_in-line">沒有未读信息</view>
+      </view>
+    </van-tab>
+  </van-tabs>
+   <!-- 回复按钮 -->
+  <!-- //置顶 -->
+  <!-- <totop :syncToTop.sync="isToTop"/> -->
+  <totop/>
+</view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import api from '@/utils/api'
+  import Notify from '@/components/vant/notify/notify'
+  // import Topic from '@/components/topics/topic'
+  import toTop from '@/components/tools/toTop'
+  import Event from '@/utils/event.js'
+
+  export default class notificationListIndexs extends wepy.page {
+    config = {
+      enablePullDownRefresh: true,
+      onReachBottomDistance:500
+    }
+    // 可用于页面模板绑定的数据
+    data = {
+      // isToTop:false,
+      active: 0,
+      scrollTop: 0,
+      reply:{
+        data:[],
+        page:1,
+        noMoreData:false,
+        scrollTop:0
+      },
+      replyFavorited:{
+        data:[],
+        page:1,
+        noMoreData:false,
+        scrollTop:0
+      },
+      topicFavorited:{
+        data:[],
+        page:1,
+        noMoreData:false,
+        scrollTop:0
+      },
+      noMoreData:false,
+
+      isLogin: false,
+      unread_count:0,
+      unreadTopicFavorite_count:0,
+      unreadReplyFavorite_count:0
+
+    }
+    components = {
+        // topic: Topic,
+        totop:toTop
+    }
+    onPageScroll(event) {
+      // this.$invoke('totop','scroll')
+      // console.log(event.scrollTop)
+      if(event.scrollTop>=100){
+        this.$invoke('totop','scroll')
+        // this.isToTop = true
+      }
+      // }else{
+      //   this.isToTop = false
+      // }
+      this.$apply()
+      let Top = 0
+      Top= this.active==1?'replyFavorited.scrollTop':'topicFavorited.scrollTop'
+      // console.log(Top)
+      this.setData({
+        [Top]: event.scrollTop,
+        scrollTop:event.scrollTop
+      })
+    }
+     // 获取话题数据
+    async getNotifications(reset = false) {
+      let type=this.active==0?'reply':this.active==1?'topic_favorite':this.active==2?'reply_favorite':''
+      console.log(type,this.active)
+      let page = this.active==0?this.reply.page:this.active==1?this.topicFavorited.page:this.active==2?this.replyFavorited.page:1
+      try {
+        // 请求话题列表接口
+        let notificationResponse = await api.authRequest({
+          url: 'user/notifications',
+          data: {
+            page: page,
+            type: type,
+          }
+        })
+
+        let notifications = notificationResponse.data.data
+        if(this.active==0){
+          this.reply.data =reset ? notifications : this.reply.data.concat(notifications)
+
+        }else if(this.active==1){
+          this.topicFavorited.data =reset ? notifications : this.topicFavorited.data.concat(notifications)
+
+        }else{
+          this.replyFavorited.data =reset ? notifications : this.replyFavorited.data.concat(notifications)
+
+        }
+        console.log(notifications)
+        let pagination = notificationResponse.data.meta
+        // 根据分页设置是否还有更多数据
+
+        if (pagination.current_page === pagination.last_page) {
+          if(this.active==0){
+            this.reply.noMoreData=true
+
+          }else if(this.active==1){
+            this.topicFavorited.noMoreData=true
+
+          }else{
+           this.replyFavorited.noMoreData=true
+
+          }
+        }
+        this.$apply()
+
+      } catch (err) {
+        console.log(err)
+         Notify('服务器错误，请联系管理员');
+      }
+    }
+    async markAsRead() {
+      let type=this.active==0?'reply':this.active==1?'topic_favorite':this.active==2?'reply_favorite':''
+      try {
+        // 标记消息为已读，不显示 loading 框
+        let markResponse = await api.authRequest({
+          url: 'user/read/notifications',
+          method: 'PUT',
+          data:{
+            type:type
+          }
+        }, false)
+
+        if (markResponse.statusCode === 204) {
+          // 设置全局未读消息为 0
+          this.$parent.globalData.unreadCount = 0
+          this.$apply()
+        }
+      } catch (err) {
+        console.log(err)
+       Notify('服务器错误，请联系管理员');
+      }
+    }
+    async onLoad() {
+      this.getNotifications()
+      this.unread_count = this.$parent.globalData.Count.unread_count
+      this.unreadTopicFavorite_count = this.$parent.globalData.Count.unreadTopicFavorite_count
+      this.unreadReplyFavorite_count = this.$parent.globalData.Count.unreadReplyFavorite_count
+      this.$apply()
+      await this.markAsRead()
+    }
+
+    async onPullDownRefresh() {
+      if(this.active==0){
+          this.reply.scrollTop = 0
+          this.reply.noMoreData=false
+          this.reply.page=1
+        }else if(this.active==1){
+          this.topicFavorited.scrollTop = 0
+          this.topicFavorited.noMoreData=false
+          this.topicFavorited.page=1
+        }else{
+          this.replyFavorited.scrollTop = 0
+          this.replyFavorited.noMoreData=false
+          this.replyFavorited.page =1
+        }
+      this.$apply()
+      await this.markAsRead()
+      await this.getNotifications(true)
+      wepy.stopPullDownRefresh()
+    }
+    async onReachBottom () {
+      if(this.active==0){
+        let noMoreData =this.reply.noMoreData
+        this.reply.page=this.reply.page+1
+      }else if(this.active==1){
+        let noMoreData =this.topicFavorited.noMoreData
+        this.topicFavorited.page=this.topicFavorited.page+1
+      }else{
+        let noMoreData =this.replyFavorited.noMoreData
+        this.replyFavorited.page==this.replyFavorited.page+1
+      }
+      // 如果没有更多内容，直接返回
+      if (this.noMoreData) {
+        return
+      }
+      // this.page = this.page + 1
+      await this.getNotifications()
+      this.$apply()
+    }
+
+    async onChange(event) {
+
+      let index = `${event.detail.index}`
+      this.active = index
+
+      console.log(index,this.active)
+
+      let scrollTop=index==0?this.reply.scrollTop:index==1?this.topicFavorited.scrollTop:index==2?this.replyFavorited.scrollTop:0
+      this.$invoke('totop','isShow',scrollTop)
+      wepy.pageScrollTo({
+        scrollTop: scrollTop,
+        duration: 0
+      })
+
+      let topic =index==0?this.reply.data:index==1?this.topicFavorited.data:index==2?this.replyFavorited.data:[]
+      if(!topic.length){
+        console.log(topic.length)
+        await this.getNotifications()
+        await this.markAsRead()
+      }
+      this.$apply()
+    }
+  }
+</script>

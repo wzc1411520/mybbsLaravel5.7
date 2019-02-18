@@ -74,9 +74,9 @@ image{
 .weui-media-box__info__meta{
   display: flex;
 }
-.zanBtn{
+// .zanBtn{
 
-}
+// }
 .user_name{
   font-size: 18px;
   font-weight: 500;
@@ -115,8 +115,8 @@ image{
         <rich-text nodes="{{ topic.body }}" style="font-size:16px;" bindtap="tap"></rich-text>
         <view  class="deleteBtn">
           <van-button wx:if="{{ canDelete }}" @tap="deleteTopic" size="mini"  type="default">删除</van-button>
-          <van-button wx:if="{{ !isFavorited }}" class="zanBtn"  @tap="zanBtn" size="mini"  type="default">点赞</van-button>
-          <van-button wx:else class="zanBtn"  @tap="zanBtn" size="mini"  type="default">已赞</van-button>
+          <van-button wx:if="{{ !topic.isFavorited }}" class="zanBtn"  @tap="zanBtn" size="mini"  type="default">点赞</van-button>
+          <van-button wx:if="{{ topic.isFavorited }}" class="zanBtn"  @tap="zanBtn" size="mini"  type="default">已赞</van-button>
         </view>
       </view>
     </view>
@@ -165,7 +165,7 @@ image{
     }
     onShow(){
       let that = this
-      Event.EventBus.on('first-event', function(msg) {
+      Event.EventBus.one('first-event', function(msg) {
         console.log(`更新评论`);
         that.$invoke('replylist', 'reload')
       });

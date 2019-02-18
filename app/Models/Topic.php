@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\Favoritable;
 use App\Models\Traits\RecordsActivity;
 use App\Models\Traits\TopicViewNum;
+use Illuminate\Support\Facades\Log;
 
 class Topic extends Model
 {

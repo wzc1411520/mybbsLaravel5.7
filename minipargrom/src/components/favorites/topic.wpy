@@ -72,7 +72,7 @@ image{
 </style>
 <template>
   <view>
-    <van-tabs animated swipeable color="#00b5ad ">
+    <van-tabs animated swipeable color="#00b5ad " >
       <van-tab title="话题">
         <view>
           <repeat for="{{ favoriteTopicData }}" wx:key="id" index="index" item="favorite">
