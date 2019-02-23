@@ -49,8 +49,8 @@
     onLoad(options) {
       // 未登录跳转到登录页面
       if (!this.$parent.checkLogin()) {
-        wepy.navigateTo({
-          url: '/pages/auth/login'
+        wepy.switchTab({
+          url: '/pages/users/me'
         })
       }
       this.topicId = options.topic_id

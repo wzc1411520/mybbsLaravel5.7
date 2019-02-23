@@ -12,15 +12,17 @@ class TopicReplied extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $reply;
+    public $reply;
+    public $topic;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(Reply $reply)
+    public function __construct($type,Reply $reply)
     {
         $this->reply = $reply;
+        $this->type = $type;
     }
 
     /**

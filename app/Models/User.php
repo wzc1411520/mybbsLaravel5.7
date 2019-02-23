@@ -10,7 +10,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable  implements MustVerifyEmailContract,JWTSubject
+class User extends Authenticatable  implements JWTSubject
 {
     use HasRoles;
     use Notifiable {
@@ -40,6 +40,8 @@ class User extends Authenticatable  implements MustVerifyEmailContract,JWTSubjec
     public function markAsRead()
     {
         $this->notification_count = 0;
+        $this->reply_notification_count = 0;
+        $this->topic_notification_count = 0;
         $this->save();
 
 //        $this->unreadNotifications->markAsRead();
@@ -70,6 +72,11 @@ class User extends Authenticatable  implements MustVerifyEmailContract,JWTSubjec
     public function topics()
     {
         return $this->hasMany(Topic::class);
+    }
+
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
     }
 
     public function isAuthorOf($model)

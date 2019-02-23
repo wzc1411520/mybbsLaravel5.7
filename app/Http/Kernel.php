@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\categoryMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -19,6 +20,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\TrustProxies::class,
+
     ];
 
     /**
@@ -37,10 +39,12 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
 
             // 强制用户邮箱认证
-            \App\Http\Middleware\EnsureEmailIsVerified::class,
+//            \App\Http\Middleware\EnsureEmailIsVerified::class,
 
             // 记录用户最后活跃时间
             \App\Http\Middleware\RecordLastActivedTime::class,
+
+            categoryMiddleware::class,
         ],
 
         'api' => [

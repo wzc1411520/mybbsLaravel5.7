@@ -23,7 +23,6 @@ Route::get('test', function () {
 //    $topic = $favorite->topic;
 //    dd($favo);
 });
-Route::get('/', 'TopicsController@index')->name('root');
 
 //Auth::routes();
 // 用户身份验证相关的路由
@@ -47,6 +46,7 @@ Route::get('email/verify/{id}', 'Auth\VerificationController@verify')->name('ver
 Route::get('email/resend', 'Auth\VerificationController@resend')->name('verification.resend');
 
 Route::group(['middleware'=>'auth'],function ($route){
+    $route->get('/', 'TopicsController@index')->name('root');
     $route->resource('users', 'UsersController', ['only' => ['show', 'update', 'edit']]);
     $route->post('/replies/{reply}/favorites','FavoritesController@storeReply');
     $route->delete('/replies/{reply}/favorites','FavoritesController@deleteReply');

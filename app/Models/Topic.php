@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 class Topic extends Model
 {
     use Favoritable,TopicViewNum;
-    protected $fillable = ['title', 'body', 'category_id', 'excerpt', 'slug'];
+    protected $fillable = ['title', 'body', 'category_id', 'excerpt', 'slug','permission'];
     protected $appends = ['favoritesCount','isFavorited'];
 
     //方法

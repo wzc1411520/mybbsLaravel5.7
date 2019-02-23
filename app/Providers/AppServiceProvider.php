@@ -24,20 +24,6 @@ class AppServiceProvider extends ServiceProvider
             Config::load();
         }
         \Carbon\Carbon::setLocale('zh');
-
-        //共享数据
-
-        $user = new User();
-        $link = new Link();
-        $category = \Cache::rememberForever('channels',function (){
-            return Category::all();
-        });
-        \View::composer('*',function ($view)use($user,$link,$category){
-            $view->with('activeUsers',$user->getActiveUsers());
-            $view->with('links',$link->getAllCached());
-            $view->with('categories',$category);
-        });
-
         //統一数据格式 去掉外层的data
 
         Resource::withoutWrapping();

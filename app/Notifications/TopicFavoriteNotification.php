@@ -45,11 +45,12 @@ class TopicFavoriteNotification extends Notification
     public function toDatabase($notifiable)
     {
         $topic = $this->topic;
-//        $link =  $topic->link();
+        $link =  $topic->link();
         return [
             'type'=>'topic',
             'topic_id'=>$this->topic->id,
             'topic_title'=>$this->topic->title,
+            'topic_link' => $link,
             'favorite_user_id'=>$this->user->id,
             'favorite_user_name'=>$this->user->name,
             'favorite_user_avatar'=>storage_url($this->user->avatar),

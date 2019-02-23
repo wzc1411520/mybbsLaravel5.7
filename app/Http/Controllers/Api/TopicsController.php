@@ -12,8 +12,19 @@ class TopicsController extends Controller
 {
     public function userIndex(User $user,Request $request)
     {
-        $topics = $user->topics()->recent()
+        $topics = $user->topics()->where(['isShow'=>1])->recent()
             ->paginate(20);
+        return TopicResource::collection($topics);
+    }
+
+    public function meIndex(Request $request)
+    {
+        $topics = $this->user->topics()->where(function ($query)use($request){
+            if ($request->category_id&&$request->category_id!=0) {
+                $query->where('category_id', $request->category_id);
+//                $query->where(['isShow'=>0]);
+            }
+        })->recent()->paginate(20);
         return TopicResource::collection($topics);
     }
     public function index(Request $request,Topic $topic)
@@ -22,6 +33,7 @@ class TopicsController extends Controller
             if ($request->category_id&&$request->category_id!=0) {
                 $query->where('category_id', $request->category_id);
             }
+            $query->where(['isShow'=>1]);
         })->paginate(20);
 
         return TopicResource::collection($topics);
@@ -36,6 +48,7 @@ class TopicsController extends Controller
         }
         $str .= "</div>";
         $topic->title = $request->title;
+        $topic->isShow = $request->isShow;
         $topic->category_id = $request->category_id;
         $topic->body = '<div>'.$request->content.'</div>'.$str;
         $topic->user_id = $this->user()->id;

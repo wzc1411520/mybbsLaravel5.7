@@ -193,8 +193,8 @@
 
         // 表单错误
         if (captchaResponse.statusCode === 422) {
-          Notify(captchaResponse.data.errors);
-          // this.errors = captchaResponse.data.errors
+          // Notify(captchaResponse.data.errors);
+          this.errors = captchaResponse.data.errors
           this.$apply()
         }
         console.log(captchaResponse)

@@ -26,28 +26,33 @@
                                     @endif
 
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden"  name="categoryType" value="choose">
 
                                     @include('shared._messages')
 
                                     <div class="form-group">
                                         <input class="form-control" type="text" name="title" value="{{ old('title', $topic->title ) }}" placeholder="请填写标题" required />
                                     </div>
-
-                                    <div class="form-group">
-                                        <select class="form-control" name="category_id" required>
+                                    <div class="form-group" id="chooseCategory">
+                                        <select class="form-control" name="category_id" >
                                             <option value="" hidden disabled selected>请选择分类</option>
                                             @foreach ($categories as $value)
                                                 <option value="{{ $value->id }}" {{ $topic->category_id == $value->id ? 'selected' : '' }}>{{ $value->name }}</option>
                                             @endforeach
+                                            <option value="-1" hidden disabled>请选择分类</option>
                                         </select>
+                                    </div>
+                                    <div class="form-group" id="addCategory">
+                                        <input class="form-control" type="text" name="category" value="" placeholder="请填写新的分类名称" required />
+                                        <input class="form-control" type="text" name="description" value="" placeholder="请填写描述" required />
                                     </div>
 
                                     <div class="form-group">
                                         <textarea name="body" class="form-control" id="editor" rows="6" placeholder="请填入至少三个字符的内容。" required>{{ old('body', $topic->body ) }}</textarea>
                                     </div>
-
                                     <div class="well well-sm">
                                         <button type="submit" class="btn btn-primary"><i class="far fa-save mr-2" aria-hidden="true"></i> 保存</button>
+                                        <button type="button" class="btn btn-primary toggleBtn"><i class="far fa-save mr-2" aria-hidden="true"></i> 新增分类</button>
                                     </div>
                                 </form>
                 </div>
@@ -81,6 +86,23 @@
           },
           pasteImage: true,
         });
+        $('#addCategory').hide();
+        var flag = false;
+          $('.toggleBtn').click(function () {
+            flag = !flag;
+            if(flag){
+              $('#addCategory').show()
+              $('#chooseCategory').hide();
+              $('.toggleBtn').text('选择分类');
+              $('input[name=categoryType]').val('add');
+            }else {
+              $('#addCategory').hide()
+              $('#chooseCategory').show();
+              $('.toggleBtn').text('新增分类');
+              $('input[name=categoryType]').val('choose');
+            }
+          });
       });
+
     </script>
 @stop

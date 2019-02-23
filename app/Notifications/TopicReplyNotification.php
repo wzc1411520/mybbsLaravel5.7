@@ -12,8 +12,8 @@ class TopicReplyNotification extends Notification
 {
     use Queueable;
 
-    protected $reply;
-    protected $type;
+    public $reply;
+    public $type;
     /**
      * Create a new notification instance.
      *

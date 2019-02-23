@@ -150,7 +150,7 @@ image{
     </van-tab>
     <van-tab title="被赞的话题" info="{{unreadTopicFavorite_count}}">
       <repeat for="{{ topicFavorited.data}}" key="id" index="index" item="topic">
-        <view  hover-class="weui-cell_active" class="{{topicFavorited.read_at==null?'unread topic':'topic'}}">
+        <view  hover-class="weui-cell_active" class="{{topicFavorited.read_at?'unread topic':'topic'}}">
           <navigator url="/pages/users/show?id={{ topic.data.favorite_user_id }}" class="media-box media-box_appmsg" hover-class="cell_active">
           <view class="user_avatar">
             <image class="media-box__thumb" src="{{topic.data.favorite_user_avatar}}" />
@@ -237,19 +237,22 @@ image{
         data:[],
         page:1,
         noMoreData:false,
-        scrollTop:0
+        scrollTop:0,
+
       },
       replyFavorited:{
         data:[],
         page:1,
         noMoreData:false,
-        scrollTop:0
+        scrollTop:0,
+
       },
       topicFavorited:{
         data:[],
         page:1,
         noMoreData:false,
-        scrollTop:0
+        scrollTop:0,
+
       },
       noMoreData:false,
 
@@ -315,12 +318,15 @@ image{
         if (pagination.current_page === pagination.last_page) {
           if(this.active==0){
             this.reply.noMoreData=true
+            this.reply.total=pagination.total
 
           }else if(this.active==1){
             this.topicFavorited.noMoreData=true
+            this.topicFavorited.total=pagination.total
 
           }else{
            this.replyFavorited.noMoreData=true
+           this.replyFavorited.total=pagination.total
 
           }
         }
@@ -377,8 +383,8 @@ image{
           this.replyFavorited.page =1
         }
       this.$apply()
-      await this.markAsRead()
       await this.getNotifications(true)
+      await this.markAsRead()
       wepy.stopPullDownRefresh()
     }
     async onReachBottom () {
@@ -416,8 +422,10 @@ image{
       })
 
       let topic =index==0?this.reply.data:index==1?this.topicFavorited.data:index==2?this.replyFavorited.data:[]
+      // let total =index==0?this.reply.total:index==1?this.topicFavorited.total:index==2?this.replyFavorited.total:0
+      // console.log(topic,total)
       if(!topic.length){
-        console.log(topic.length)
+
         await this.getNotifications()
         await this.markAsRead()
       }

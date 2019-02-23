@@ -10,12 +10,13 @@ class NotificationsController extends Controller
     public function index(Request $request)
     {
         $type = $request->type;
-
-        $unreadNotifications = $this->user->unreadNotifications()->whereType($type)->count();
-        $notificationsQuery = $unreadNotifications? $this->user->unreadNotifications():$this->user->notifications();
-
-        $notifications = $notificationsQuery->whereType($type)->latest()->paginate(20);
-
+        if(!$type){
+            $notifications = $this->user->notifications()->whereCount('notifications')->latest()->paginate(20);
+        }else{
+            $unreadNotifications = $this->user->unreadNotifications()->whereType($type)->count();
+            $notificationsQuery = $unreadNotifications? $this->user->unreadNotifications():$this->user->readNotifications();
+            $notifications = $notificationsQuery->whereType($type)->latest()->paginate(20);
+        }
         return NotificationsResource::collection($notifications);
     }
 

@@ -12,9 +12,11 @@
             <!-- Left Side Of Navbar -->
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item {{ active_class(if_route('topics.index')) }}"><a class="nav-link" href="{{ route('topics.index') }}">话题</a></li>
+                @auth
                 @foreach($categories as $category)
                 <li class="nav-item {{ category_nav_active($category->id) }}"><a class="nav-link" href="{{ route('categories.show', $category->id) }}">{{$category->name}}</a></li>
                 @endforeach
+                @endauth
             </ul>
 
             <!-- Right Side Of Navbar -->
@@ -29,8 +31,8 @@
                         </a>
                     </li>
                     <li class="nav-item notification-badge">
-                        <a class="nav-link mr-3 badge badge-pill badge-{{ Auth::user()->notification_count > 0 ? 'hint' : 'secondary' }} text-white" href="{{ route('notifications.index') }}">
-                            {{ Auth::user()->notification_count }}
+                        <a class="nav-link mr-3 badge badge-pill badge-{{  Auth::user()->notification_count + Auth::user()->reply_notification_count +Auth::user()->topic_notification_count > 0 ? 'hint' : 'secondary' }} text-white" href="{{ route('notifications.index') }}">
+                            {{ Auth::user()->notification_count +Auth::user()->reply_notification_count +Auth::user()->topic_notification_count }}
                         </a>
                     </li>
                     <li class="nav-item dropdown">

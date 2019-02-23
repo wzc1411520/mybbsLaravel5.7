@@ -13,8 +13,11 @@ class TopicsTableSeeder extends Seeder
         $user_ids = User::all()->pluck('id')->toArray();
 
         // 所有分类 ID 数组，如：[1,2,3,4]
-        $category_ids = Category::all()->pluck('id')->toArray();
-
+        $category = Category::all()->pluck('id','user_id')->toArray();
+        $category_ids = [];
+        foreach ($category as $k=>$v){
+            $category_ids[$v][] = $k;
+        }
         // 获取 Faker 实例
         $faker = app(Faker\Generator::class);
 
@@ -25,10 +28,11 @@ class TopicsTableSeeder extends Seeder
             use ($user_ids, $category_ids, $faker)
             {
                 // 从用户 ID 数组中随机取出一个并赋值
-                $topic->user_id = $faker->randomElement($user_ids);
+                $userId = $faker->randomElement($user_ids);
+                $topic->user_id = $userId;
 
                 // 话题分类，同上
-                $topic->category_id = $faker->randomElement($category_ids);
+                $topic->category_id = $faker->randomElement($category_ids[$userId]);
             });
 
         // 将数据集合转换为数组，并插入到数据库中

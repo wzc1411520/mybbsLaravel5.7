@@ -1,0 +1,101 @@
+<template>
+   <view>
+     <van-notify id="van-notify" />
+      <van-cell-group>
+        <van-field
+          value="{{ categoryName }}"
+          focus
+          center
+          clearable
+          placeholder="请输入分类名称"
+          border="{{ false }}"
+          use-button-slot
+          bind:change="bindCategoryName"
+        >
+          <van-button slot="button" size="small" type="primary" bind:click="createCategory">确认</van-button>
+        </van-field>
+        <van-field
+          type='textarea'
+          autosize
+          value="{{ description }}"
+          placeholder="分类描述"
+          bind:change="onChange"
+        />
+      </van-cell-group>
+    </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import api from '@/utils/api'
+// import util from '@/utils/util'
+import Event from '@/utils/event.js'
+import Notify from '@/components/vant/notify/notify';
+export default class CategoryCreate extends wepy.page {
+  config = {
+    navigationBarTitleText: '创建分类',
+    // enablePullDownRefresh: true,
+    // onReachBottomDistance:300
+  }
+  data={
+    categoryName:'',
+    description:''
+  }
+
+  methods= {
+    async createCategory(){
+      if(!this.categoryName){
+        Notify('名称不能为空')
+      }
+      try{
+        let addCategoriyResponse = await api.authRequest({
+          url: 'categories',
+          method: 'POST',
+          data: {
+            name:this.categoryName,
+            description:this.description
+          }
+        })
+        if (addCategoriyResponse.statusCode === 201) {
+          Notify({
+            text: '创建成功',
+            backgroundColor: '#1989fa',
+            duration: 800,
+          });
+          wepy.removeStorageSync('category')
+          Event.EventBus.emit('successCreateCategory', addCategoriyResponse.data)
+          // 2 秒后返回上一页
+          setTimeout(function() {
+            wepy.navigateBack()
+          }, 1000)
+
+          // wepy.showToast({
+          //   title: '修改成功',
+          //   icon: 'success',
+          //   duration: 2000
+          // })
+        }
+      } catch (err) {
+        console.log(err)
+        Notify('服务器错误，请联系管理员');
+        // wepy.showModal({
+        //   title: '提示',
+        //   content: '服务器错误，请联系管理员'
+        // })
+
+      }
+
+    },
+    bindCategoryName(event){
+      this.categoryName = event.detail
+    },
+    onChange(event){
+      this.description = event.detail
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>

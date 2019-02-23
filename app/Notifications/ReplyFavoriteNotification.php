@@ -43,10 +43,13 @@ class ReplyFavoriteNotification extends Notification
 
     public function toDatabase($notifiable)
     {
+        $topic = $this->reply->topic;
+        $link  = $topic->link(['#reply'.$this->reply->id]);
         return [
             'type'=>'reply',
             'topic_id'=>$this->reply->topic_id,
             'topic_title'=>$this->reply->topic->title,
+            'topic_link' => $link,
             'reply_content'=>$this->reply->content,
             'favorite_user_id'=>$this->user->id,
             'favorite_user_name'=>$this->user->name,

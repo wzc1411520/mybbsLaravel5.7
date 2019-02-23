@@ -70,42 +70,56 @@ image { width: 100%; height: 100%;}
   vertical-align:middle;
 }
 .create-reply {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   position: fixed;
-  bottom: 30px;
-  right: 30px;
+  bottom: 45px;
+  right: 10px;
   z-index: 999;
 }
 
 </style>
 <template>
 <view>
-  <repeat for="{{ replyTopic.data}}" key="id" index="index" item="topic">
-    <navigator url="/pages/topics/show?id={{ topic.id }}" class="media-box media-box_appmsg" hover-class="cell_active">
-      <view class='topic'>
-        <view class="user_avatar">
-          <image class="media-box__thumb" src="{{topic.user.avatar}}" />
+  <van-notify id="van-notify" />
+  <van-tabs swipeable sticky scroll-top="{{ scrollTop }}" active="{{ active }}" color="#00b5ad" bind:change="onChange">
+    <repeat for="{{listData}}" key="id" index="index" item="category">
+      <van-tab title="{{category.name}}">
+        <repeat for="{{ category.topic}}" key="id" index="index" item="topic">
+          <navigator url="/pages/topics/show?id={{ topic.id }}" class="media-box media-box_appmsg" hover-class="cell_active">
+            <view class='topic'>
+              <view class="user_avatar">
+                <image class="media-box__thumb" src="{{topic.user.avatar}}" />
+              </view>
+              <view class="topic-box">
+                <view class="topic-box_top">
+                  {{topic.title}}
+                </view>
+                <view class="topic-info">
+                  <view class="box__info__meta">{{topic.category.name}} • </view>
+                  <view class="box__info__meta">{{topic.user.name}} • </view>
+                  <view class="box__info__meta">{{topic.updated_at}}</view>
+                </view>
+              </view>
+              <view class="reply-cout">
+                <van-tag plain round mark color="#b8b8b8"><van-icon name="chat-o"/>{{topic.reply_count}}</van-tag>
+              </view>
+            </view>
+          </navigator>
+        </repeat>
+        <view class="weui-loadmore weui-loadmore_line" wx:if="{{category.noMoreData }}">
+            <view class="weui-loadmore__tips weui-loadmore__tips_in-line">没有更多数据</view>
         </view>
-        <view class="topic-box">
-          <view class="topic-box_top">
-            {{topic.title}}
-          </view>
-          <view class="topic-info">
-            <view class="box__info__meta">{{topic.category.name}} • </view>
-            <view class="box__info__meta">{{topic.user.name}} • </view>
-            <view class="box__info__meta">{{topic.updated_at}}</view>
-          </view>
-        </view>
-        <view class="reply-cout">
-          <van-tag plain round mark color="#b8b8b8"><van-icon name="chat-o"/>{{topic.reply_count}}</van-tag>
-        </view>
-      </view>
-    </navigator>
-  </repeat>
-  <view class="weui-loadmore weui-loadmore_line" wx:if="{{ replyTopic.noMoreData }}">
-    <view class="weui-loadmore__tips weui-loadmore__tips_in-line">没有更多数据</view>
-  </view>
+      </van-tab>
+    </repeat>
+  </van-tabs>
+
+    <!-- 发布 -->
+  <navigator url="/pages/topics/create" wx:if="{{ isLogin }}">
+    <image src="/images/reply.png" class="create-reply" />
+  </navigator>
+  <!-- 置顶 -->
+   <totop/>
 </view>
 </template>
 
@@ -113,152 +127,179 @@ image { width: 100%; height: 100%;}
   import wepy from 'wepy'
   import api from '@/utils/api'
   import Notify from '@/components/vant/notify/notify'
-  import Topic from '@/components/topics/topic'
   import unreadCount from '@/mixins/unreadCount'
   import Event from '@/utils/event.js'
+  import toTop from '@/components/tools/toTop'
 
-  export default class TopicsIndex extends wepy.page {
+  export default class TopicsIndexs extends wepy.page {
     config = {
       enablePullDownRefresh: true,
       onReachBottomDistance:500
     }
     // 可用于页面模板绑定的数据
     data = {
-      parentTitle: 'p-title',
       active: 0,
       scrollTop: 0,
-      swipe_threshold:5,
-      topic:[],
       categoryId:0,
-      noMoreData:false,
        // 话题数据
-      topics: [],
+      listData: [],
 
-      categories:[{'id':0,'name'	:	'全部'}],
-      // 当前分页
-      page: 1,
       isLogin: false,
-      page3: 1,
     }
-     components = {
-        topic: Topic,
+    components = {
+        totop: toTop,
     }
     mixins = [unreadCount]
+    async onLoad() {
+      await this.getCategory()
+      await this.getTopics(true)
+    }
+    async onShow() {
+      if (!this.$parent.checkLogin()) {
+        wepy.switchTab({
+          url: '/pages/users/me'
+        })
+      }
+      this.$parent.checkRefreshPages(this.getCurrentPages().pop().route, () => {
+        this.getTopics(true)
+        this.$apply()
+      })
+      let that = this
+      Event.EventBus.one('successCreat', function(msg) {
+        console.log('更新'+msg);
+        //跟新分类数据
+        that.getTopics(true,msg)
+      });
+      this.isLogin = this.$parent.checkLogin()?true:false
+      this.$apply()
+      console.log(1245)
+    }
     onPageScroll(event) {
       // console.log(event)
-      this.scrollTop=event.scrollTop
+      this.listData[this.active].scroll=event.scrollTop
+      this.scrollTop = event.scrollTop
       this.$apply()
+      if(event.scrollTop>=100){
+        this.$invoke('totop','scroll')
+        // this.isToTop = true
+      }
+
     }
 
     async getCategory(){
-      try{
-         // 请求话题列表接口
-        let categoriseResponse = await api.request('categories')
-        // console.log(categoriseResponse)
-        let categories = categoriseResponse.data
-        // 将数据合并到 this.topics
-        this.categories = this.categories.concat(categories)
-        wepy.setStorageSync('category',this.categories)
-        this.$apply()
-      } catch (err) {
-          console.log(err)
-          Notify('服务器错误，请联系管理员');
-      }
+      // const category =  wepy.getStorageSync('category')
+      // if(!false){
+         try{
+          // 请求话题列表接口
+          let categoriseResponse = await api.authRequest('categories')
+          console.log(categoriseResponse)
+          let categories = categoriseResponse.data
+
+          if(categories.length == 0){
+            wepy.navigateTo({
+              url:'/pages/topics/create'
+            })
+          }
+
+          // 将数据合并到 this.topics
+          categories.forEach(category => {
+              category.topic = []
+              category.page = 1
+              category.noMoreData = false
+              category.scroll = 0
+          });
+          this.listData = categories
+          // wepy.setStorageSync('category',this.categories)
+          this.$apply()
+        } catch (err) {
+            console.log(err)
+            Notify('服务器错误，请联系管理员');
+        }
+      // }else{
+      //   this.categories = category
+      // }
     }
      // 获取话题数据
-    async getTopics(category=0,page = 1, reset = false) {
+    async getTopics(loadmore=false,category='') {
+      //panduan
+      let active = (typeof category)=='string'?this.active:category
+      let page = this.listData[active].page?this.listData[active].page:1
+      page = loadmore?1:page+1
+      this.listData[active].page = page
+      if(!loadmore){
+        if(this.listData[active].topic.length!=0&&this.listData[active].topic.length <= this.listData[active].topics_count){
+            return
+        }
+      }
+
+      let categoryId = this.listData[active].id
       try {
         // 请求话题列表接口
-        let topicsResponse = await api.request({
-          url: 'topics',
+        let topicsResponse = await api.authRequest({
+          url: 'topicsme',
           data: {
             page: page,
             include: 'user,category',
-            category_id:category,
+            category_id:categoryId,
           }
         })
-        // console.log(topicsResponse)
-        let topics = topicsResponse.data.data
-        // 将数据合并到 this.topics
-        if(this.topics[category]==undefined){
-          this.topics[category]=[]
-        }
-        let topic = this.topics[category]
+        console.log(topicsResponse)
+        // return topicsResponse.data
+        let topics =  topicsResponse.data.data
 
-        this.topics[category] =reset ? topics : topic.concat(topics)
-        this.topic = this.topics[category]
+        this.listData[active].topic = loadmore ? topics : this.listData[active].topic.concat(topics)
 
         let pagination = topicsResponse.data.meta
         // 根据分页设置是否还有更多数据
         if (pagination.current_page === pagination.last_page) {
-          this.noMoreData = true
+          this.listData[active].noMoreData = true
         }
+        this.listData[active].listCount = pagination.total
         this.$apply()
       } catch (err) {
         console.log(err)
          Notify('服务器错误，请联系管理员');
       }
     }
-    async onLoad() {
-      this.getCategory()
-      this.getTopics()
-    }
-    onShow(){
-      this.$parent.checkRefreshPages(this.getCurrentPages().pop().route, () => {
-        // this.$invoke('topiclist', 'reload')
 
-        this.noMoreData = false
-        this.page = 1
-        this.getTopics(this.categoryId,1, true)
-        this.$apply()
-      })
-      let that = this
-      Event.EventBus.one('successCreat', function(msg) {
-        console.log('更新'+msg);
-        that.getTopics(msg)
-      });
-      this.isLogin = this.$parent.checkLogin()?true:false
-      this.$apply()
-      console.log(1245)
-    }
     async onPullDownRefresh() {
-      this.noMoreData = false
-      this.page = 1
-      await this.getTopics(this.categoryId,1, true)
+      //清除分类数据
+      wepy.removeStorageSync('category')
+      await this.getCategory();
+
+      await this.getTopics(true,this.active)
       wepy.stopPullDownRefresh()
     }
     async onReachBottom () {
       // 如果没有更多内容，直接返回
-      if (this.noMoreData) {
+      if (this.listData[this.active].noMoreData) {
         return
       }
-      this.page = this.page + 1
-      await this.getTopics(this.categoryId,this.page)
+      await this.getCategory()
+      await this.getTopics()
       this.$apply()
     }
 
     onChange(event) {
 
+      let index = `${event.detail.index}`
       wepy.pageScrollTo({
-        scrollTop: 0,
+        scrollTop: this.listData[index].scroll,
         duration: 0
       })
-      if(this.topics[category]==undefined){
-        this.topics[category]=[]
+      // if(this.topics[category]==undefined){
+      //   this.topics[category]=[]
+      // }
+      this.scrollTop = this.listData[index].scroll
+      this.active = index
+      this.$apply()
+      if(this.listData[this.active].topic.length==0){
+        this.getTopics(true)
       }
-      this.noMoreData = false
-      this.page = 1
-      let category = `${event.detail.index}`
-      this.categoryId = category
-      let topic = this.topics.filter((topics,index)=>(index == category))
-      // console.log(topic)
-      if(!topic.length){
-        // console.log(topic.length)
-        this.getTopics(category)
-      }
-
-      this.topic = topic[0]
-      this.$parent.sleep(1)
+      // let topic = this.topics.filter((topics,index)=>(index == category))
+      // // console.log(topic)
+      // this.topic = topic[0]
+      // this.$parent.sleep(1)
     }
   }
 </script>

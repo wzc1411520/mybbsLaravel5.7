@@ -27,7 +27,6 @@ export default class extends wepy.app {
       'pages/users/me',
       'pages/users/edit',
       'pages/users/show',
-      'pages/auth/login',
       'pages/topics/index',
       'pages/topics/show',
       'pages/topics/userIndex',
@@ -35,7 +34,8 @@ export default class extends wepy.app {
       'pages/replies/userIndex',
       'pages/replies/create',
       'pages/notifications/indexs',
-      'pages/favorites/favoriteIndex'
+      'pages/favorites/favoriteIndex',
+      'pages/category/create'
     ],
     window: {
       backgroundTextStyle: 'light',
@@ -81,8 +81,15 @@ export default class extends wepy.app {
         "van-picker": "../components/vant/picker/index",
         "van-action-sheet": "../components/vant/action-sheet/index",
         "van-cell": "../components/vant/cell/index",
-        "van-cell-group": "../components/vant/cell-group/index"
-    }
+        "van-cell-group": "../components/vant/cell-group/index",
+         "van-dialog": "../components/vant/dialog/index"
+    },
+     "permission": {
+      "scope.userLocation": {
+        "desc": "你的位置信息将用于小程序位置接口的效果展示"
+      }
+    },
+    "debug": true,
   }
 
   globalData = {
@@ -90,7 +97,19 @@ export default class extends wepy.app {
     refreshPages: [],
     Count: {},
   }
+
   async onLaunch() {
+    if (!this.checkLogin()) {
+      wx.switchTab({
+       url:'pages/users/me'
+     })
+    }
+
+    // wx.getNetworkType({
+    //   success(res) {
+    //     console.log('getNetworkType',res)
+    //   }
+    // })
 
     // 小程序启动，调用一起获取未读消息数
     this.updateUnreadCount()
@@ -101,6 +120,42 @@ export default class extends wepy.app {
 
     let res = await wepy.login();
     this.testAsync();
+    //授权
+   // wx.getSetting({
+    //   success(res) {
+    //     if (!res.authSetting['scope.record']) {
+    //       wx.authorize({
+    //         scope: 'scope.record',
+    //         success() {
+    //           // 用户已经同意小程序使用录音功能，后续调用 wx.startRecord 接口不会弹窗询问
+    //           wx.startRecord()
+    //         }
+    //       })
+    //     }
+    //   }
+    // })
+    // wx.getLocation({
+    //   type: 'wgs84',
+    //   success(res) {
+    //     const latitude = res.latitude
+    //     const longitude = res.longitude
+    //     const speed = res.speed
+    //     const accuracy = res.accuracy
+    //     console.log(res)
+    //   }
+    // })
+
+  }
+
+  onShow(){
+    //网路监听
+    // wx.onNetworkStatusChange(function (res) {
+    //   console.log(res.isConnected)
+    //   console.log(res.networkType)
+    // })
+    // wx.onMemoryWarning(function () {
+    //   console.log('onMemoryWarningReceive')
+    // })
   }
 
   // 获取未读消息数

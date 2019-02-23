@@ -22,6 +22,7 @@ class TopicsController extends Controller
 	{
 		$topics = Topic::withOrder($request->order)->paginate();
 //        $links = $link->getAllCached();
+//        view()->share('categories',$categories);
 		return view('topics.index', compact('topics'));
 	}
 
@@ -44,9 +45,18 @@ class TopicsController extends Controller
 		return view('topics.create_and_edit', compact('topic','categories'));
 	}
 
-	public function store(TopicRequest $request,Topic $topic)
+	public function store(TopicRequest $request,Topic $topic,Category $category)
 	{
         $topic->fill($request->all());
+	    if($request->categoryType == 'add'){
+	        $category->description = $request->description;
+	        $category->name = $request->category;
+	        $category->user_id = \Auth::id();
+	        $category->save();
+
+
+            $topic->category_id = $category->id;
+        }
         $topic->user_id = \Auth::id();
         $topic->save();
 		return redirect()->to($topic->link())->with('success', '创建 successfully.');
@@ -59,10 +69,19 @@ class TopicsController extends Controller
 		return view('topics.create_and_edit', compact('topic','categories'));
 	}
 
-	public function update(TopicRequest $request, Topic $topic)
+	public function update(TopicRequest $request, Topic $topic,Category $category)
 	{
 		$this->authorize('update', $topic);
-		$topic->update($request->all());
+        if($request->categoryType == 'add'){
+            $category->description = $request->description;
+            $category->name = $request->category;
+            $category->user_id = \Auth::id();
+            $category->save();
+
+
+            $request->category_id = $category->id;
+        }
+		$topic->update($request->except('description','category'));
 
 		return redirect()->to($topic->link())->with('success', 'Updated successfully.');
 	}

@@ -18,7 +18,9 @@
 
                         <div class="list-unstyled notification-list">
                             @foreach ($notifications as $notification)
-                                @include('notifications.types._' . snake_case(class_basename($notification->type)))
+                                @includeWhen($notification->type=='topic_favorite','notifications.types._topic_favorite')
+                                @includeWhen($notification->type=='reply','notifications.types._topic_replied')
+                                @includeWhen($notification->type=='reply_favorite','notifications.types._reply_favorite')
                             @endforeach
 
                             {!! $notifications->render() !!}

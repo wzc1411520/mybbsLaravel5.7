@@ -1,7 +1,7 @@
 import wepy from 'wepy'
 
 // 服务器接口地址
-const host = 'http://mybbs.test/api'
+const host = 'https://wzc.wzc1411520.top/api'
 
 // 普通请求
 const request = async (options, showLoading = true) => {

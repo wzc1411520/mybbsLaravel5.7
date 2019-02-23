@@ -261,9 +261,22 @@ image { width: 100%; height: 100%;}
       }
     }
     async onLoad() {
+      if (!this.$parent.checkLogin()) {
+        wepy.switchTab({
+          url: '/pages/users/me'
+        })
+      }
+
       this.getTopics()
     }
     onShow(){
+      if (!this.$parent.checkLogin()) {
+        wepy.switchTab({
+          url: '/pages/users/me'
+        })
+      }
+
+
       this.$parent.checkRefreshPages(this.getCurrentPages().pop().route, () => {
         // this.$invoke('topiclist', 'reload')
 

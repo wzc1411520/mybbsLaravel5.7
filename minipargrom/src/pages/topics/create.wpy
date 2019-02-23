@@ -110,10 +110,25 @@ border-bottom:1px solid #e1e1e1 !important;
         <view class="picture" wx:if="{{isChooseImg}}">
           <van-icon name="plus" size='40px' @tap='chooseImage' />
         </view>
-      <!-- </view> -->
+      </view>
     </view>
-    <!-- </form> -->
-  </view>
+    <!-- //创建分类 -->
+
+  <!-- <van-dialog
+    use-slot
+    show="{{ createShow }}"
+    show-cancel-button
+    bind:close="onCreateClose"
+    overlay="{{false}}"
+    bind:confirm="createCategory"
+    z-index='9999'
+  >
+    <van-field
+      value="{{ categoryName }}"
+      label="分类名称"
+      placeholder="输入分类名称"
+    />
+  </van-dialog> -->
 </view>
 </template>
 
@@ -133,10 +148,10 @@ border-bottom:1px solid #e1e1e1 !important;
       avatar:[],
       addData:{},
       img:[],
-      category:[],
+      category:[{id:0,name:'创建分类'}],
       show: false,
       choosecattegory:'',
-      choosePermission:'',//1为公开  0为私密
+      choosePermission:'公开',//1为公开  0为私密
       showPermission:false,
       permission:[
         {
@@ -151,17 +166,18 @@ border-bottom:1px solid #e1e1e1 !important;
         }
       ]
     }
+
     onLoad(options) {
       // 未登录跳转到登录页面
       if (!this.$parent.checkLogin()) {
-        wepy.navigateTo({
-          url: '/pages/auth/login'
+        wepy.switchTab({
+          url: '/pages/users/me'
         })
       }
       this.topicId = options.topic_id
       this.addData.avatar=[]
-      this.category = wepy.getStorageSync('category')
-      this.category.shift()
+      this.addData.isShow = 1
+      this.getCategory()
       // category.forEach(cate=>{
       //   if(cate.id!=0){
       //     this.category.push({'name':cate.name})
@@ -169,13 +185,22 @@ border-bottom:1px solid #e1e1e1 !important;
       // })
       if(wepy.getStorageSync('newTopic')){
         this.addData = wepy.getStorageSync('newTopic')
-        this.choosecattegory = this.category[this.addData.category_id-1].name?this.category[this.addData.category_id-1].name:''
+        this.choosecattegory = this.addData.category_name
         this.choosePermission = this.addData.isShow?'公开':'私密'
         this.avatar = this.addData.avatar
-        this.contentCount = this.addData.content.length
+        this.contentCount = this.addData.content.length?this.addData.content.length:0
       }
 
       this.$apply()
+    }
+    onShow(){
+       let that = this
+      Event.EventBus.one('successCreateCategory', function(msg) {
+        console.log('更新'+msg);
+
+        // this.category.push(msg)
+        that.getCategory()
+      });
     }
     computed = {
       isChooseImg(){
@@ -199,7 +224,11 @@ border-bottom:1px solid #e1e1e1 !important;
         this.addData.title = value
         wepy.setStorageSync('newTopic',this.addData)
       },
+      onCreateClose(){
+        this.createShow = false
+      },
       onClose() {
+
         this.show=false
         this.showPermission=false
       },
@@ -211,18 +240,25 @@ border-bottom:1px solid #e1e1e1 !important;
       },
 
       onSelect(event) {
+        if(event.detail.id == 0){
+          wepy.navigateTo({
+            url:'/pages/category/create'
+          })
+          return
+        }
         console.log(event.detail);
         this.choosecattegory = event.detail.name
         this.addData.category_id = event.detail.id
+        this.addData.category_name = event.detail.name
         this.show=false
         this.$apply()
         wepy.setStorageSync('newTopic',this.addData)
       },
       onPermissionSelect(event) {
-        console.log(event.detail);
+
         this.choosePermission = event.detail.name
         this.addData.isShow = event.detail.id
-        this.show=false
+        this.showPermission=false
         this.$apply()
         wepy.setStorageSync('newTopic',this.addData)
       },
@@ -242,6 +278,35 @@ border-bottom:1px solid #e1e1e1 !important;
           this.upload(avatar)
         });
       }
+    }
+    categoryShows(){
+
+    }
+    async getCategory(){
+      // const category =  wepy.getStorageSync('category')
+      // if(!false){
+         try{
+          // 请求话题列表接口
+          let categoriseResponse = await api.authRequest('categories')
+          console.log(categoriseResponse)
+          let categories = categoriseResponse.data
+          // 将数据合并到 this.topics
+          if(categories.length==0){
+            this.createShow = true
+          }
+
+          this.category =this.category.concat(categories)
+
+          // wepy.setStorageSync('category',this.categories)
+          this.$apply()
+          console.log(this.createShow)
+        } catch (err) {
+            console.log(err)
+            Notify('服务器错误，请联系管理员');
+        }
+      // }else{
+      //   this.categories = category
+      // }
     }
     async upload(avatar){
       try {
@@ -295,8 +360,12 @@ border-bottom:1px solid #e1e1e1 !important;
         Notify('请选择分类')
         return
       }
+      // if(!this.addData.isShow){
+      //   Notify('请选择是否公开')
+      //   return
+      // }
       if(!this.addData.avatar&&!this.addData.content){
-        Notify('请写点东西')
+        Notify('你太懒了~')
         return
       }
 
